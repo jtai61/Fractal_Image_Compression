@@ -30,7 +30,7 @@ Encode a grayscale image using a quadtree based fractal image coder.
 The input image is either in raw or in pgm format.
 
 ## USAGE
-        enc.out [ -options ] [ inputfile [ outputfile ] ]
+        enc [ -options ] [ inputfile [ outputfile ] ]
 
 ## OPTIONS
 
@@ -172,7 +172,7 @@ Decode a fractal code using either an iterative algorithm or
 a piramidal [6] algorithm.
 
 ## USAGE
-        dec.out [ -options ] [ inputfile [ outputfile ] ]
+        dec [ -options ] [ inputfile [ outputfile ] ]
 
 ## OPTIONS
 
