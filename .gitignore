@@ -1,6 +1,9 @@
 # VSCode folder
 .vscode/
 
+# bin folder
+bin/
+
 # Prerequisites
 *.d
 

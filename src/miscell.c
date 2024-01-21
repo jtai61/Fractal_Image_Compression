@@ -16,12 +16,13 @@ void fatal(char *s)
 void help_enc()
 {
 	printf(
-		"\n Usage: encmars [-options] [inputfile [outputfile]]"
+		"\n Usage: enc [-options] [inputfile [outputfile]]"
 		"\n Supported options:\n"
 		" --------------------------------------------------------------------------\n"
 		" -F   Fisher method          (Off)   -X   Hurtgen method              (Off)\n"
 		" -Z   Saupe-Fisher method    (Off)   -S   Saupe method                (Off)\n"
 		" -Y   Saupe-MC method        (Off)   -C   MassCenter method           (On) \n"
+		" -N   Nandi method    	      (Off)   -T   Tai method                  (Off)\n"		
 		" -e # Entropy threshold      (8.0)   -d # Domain step                 (4)  \n"
 		" -r # Rms threshold          (8.0)   -a # Adaptive factor             (1.0)\n"
 		" -v # Variance threshold     (Inf)   -W # Image width                 (512)\n"
@@ -35,12 +36,12 @@ void help_enc()
 		" -z # Force alfa to be 0     (0)     -h   Display this help \n\n"
 		" Supported image format: raw and pgm\n"
 		" Default input file : img/uncompressed/Lena.raw\n"
-		" Default output file: ifs/Lena_encode.ifs\n\n");
+		" Default output file: ifs/Lena_enc.ifs\n\n");
 }
 
 void help_dec()
 {
-	printf("\n Usage: decmars [-options] [inputfile [outputfile]]"
+	printf("\n Usage: dec [-options] [inputfile [outputfile]]"
 		   "\n Supported options:\n"
 		   " --------------------------------------\n"
 		   " -n # Num of iterations           (10) \n"
@@ -51,8 +52,8 @@ void help_dec()
 		   " -d   Display image with xv       (Off)\n"
 		   " -z # Zoom factor                 (1.0)\n"
 		   " -h   Display this help \n\n"
-		   " Default input file : ifs/Lena_encode.ifs\n"
-		   " Default output file: img/decompressed/Lena_decode.pgm\n\n");
+		   " Default input file : ifs/Lena_enc.ifs\n"
+		   " Default output file: img/decompressed/Lena_dec.pgm\n\n");
 }
 
 void getopt_enc(int argc, char **argv)
@@ -93,6 +94,12 @@ void getopt_enc(int argc, char **argv)
 				break;
 			case 'Y':
 				method = McSaupe;
+				break;
+			case 'N':
+				method = Nandi;
+				break;
+			case 'T':
+				method = Tai;
 				break;
 			case 'r':
 				T_RMS = atof(argv[++i]);
@@ -235,7 +242,7 @@ void getopt_enc(int argc, char **argv)
 	if (filein[0] == 1)
 		strcpy(filein, "img/uncompressed/Lena.raw");
 	if (fileout[0] == 1)
-		strcpy(fileout, "ifs/Lena_encode.ifs");
+		strcpy(fileout, "ifs/Lena_enc.ifs");
 
 	if (min_size > max_size)
 		fatal("\n -m flag value greater tham -M flag value");
@@ -291,11 +298,11 @@ void getopt_dec(int argc, char **argv)
 		}
 
 	if (filein[0] == 1)
-		strcpy(filein, "ifs/Lena_encode.ifs");
+		strcpy(filein, "ifs/Lena_enc.ifs");
 
 	if (fileout[0] == 1)
 		if (raw_format)
-			strcpy(fileout, "img/decompressed/Lena_decode.raw");
+			strcpy(fileout, "img/decompressed/Lena_dec.raw");
 		else
-			strcpy(fileout, "img/decompressed/Lena_decode.pgm");
+			strcpy(fileout, "img/decompressed/Lena_dec.pgm");
 }

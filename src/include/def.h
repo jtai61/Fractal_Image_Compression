@@ -31,12 +31,14 @@
 
 #define MAX_NEIGHBOURS 1000
 
-#define MassCenter     0
-#define SaupeFisher    1
-#define Saupe          2
-#define Fisher         3
-#define Hurtgen        4
-#define McSaupe        5 
+#define MassCenter 		0
+#define SaupeFisher 	1
+#define Saupe 			2
+#define Fisher 			3
+#define Hurtgen 		4
+#define McSaupe 		5
+#define Nandi			6
+#define Tai				7
 
 #define TWOPI 6.2831853 
 

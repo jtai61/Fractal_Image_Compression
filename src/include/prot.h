@@ -44,3 +44,6 @@ void zooming(double);
 void help_dec();
 void iterative_decoding(int, int, double);
 void piramidal_decoding(int);
+
+double calc_PSNR(char *, char *);
+double calc_SSIM(char *, char *);

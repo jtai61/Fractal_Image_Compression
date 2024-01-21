@@ -4,22 +4,25 @@ CFLAGS = -Wall -g
 SRC_DIR = src
 INC_DIR = $(SRC_DIR)/include
 BIN_DIR = bin
-OBJ_DIR = $(BIN_DIR)/obj
 
-OBJ_ENC = 	$(OBJ_DIR)/enc.o			\
-			$(OBJ_DIR)/image_io.o		\
-			$(OBJ_DIR)/index_func.o		\
-			$(OBJ_DIR)/coding_func.o	\
-			$(OBJ_DIR)/miscell.o		\
-        	$(OBJ_DIR)/split_func.o		\
-			$(OBJ_DIR)/nn_search.o		\
+OBJ_ENC = 	$(BIN_DIR)/enc.o			\
+			$(BIN_DIR)/image_io.o		\
+			$(BIN_DIR)/index_func.o		\
+			$(BIN_DIR)/coding_func.o	\
+			$(BIN_DIR)/miscell.o		\
+        	$(BIN_DIR)/split_func.o		\
+			$(BIN_DIR)/nn_search.o		\
 
-OBJ_DEC = 	$(OBJ_DIR)/dec.o			\
-			$(OBJ_DIR)/miscell.o		\
-			$(OBJ_DIR)/image_io.o		\
+OBJ_DEC = 	$(BIN_DIR)/dec.o			\
+			$(BIN_DIR)/miscell.o		\
+			$(BIN_DIR)/image_io.o		\
+
+OBJ_EVAL =	$(BIN_DIR)/eval.o			\
+			$(BIN_DIR)/miscell.o		\
+			$(BIN_DIR)/image_io.o		\
 
 
-all: enc dec
+all: enc dec eval
 
 enc: $(OBJ_ENC)
 	$(CC) $(CFLAGS) -I$(INC_DIR) $(OBJ_ENC) -o $(BIN_DIR)/enc -lm
@@ -27,7 +30,11 @@ enc: $(OBJ_ENC)
 dec: $(OBJ_DEC)
 	$(CC) $(CFLAGS) -I$(INC_DIR) $(OBJ_DEC) -o $(BIN_DIR)/dec -lm
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+eval: $(OBJ_EVAL)
+	$(CC) $(CFLAGS) -I$(INC_DIR) $(OBJ_EVAL) -o $(BIN_DIR)/eval -lm
+
+
+$(BIN_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -lm
-	mv *.o $(OBJ_DIR)
+	mv *.o $(BIN_DIR)
 
