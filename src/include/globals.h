@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "nn_search.h"
+#include "nns.h"
 #include "def.h"
 
 #ifndef EXTERN
@@ -46,6 +46,7 @@ int mapping[][8] = {{0, 1, 2, 3, 4, 5, 6, 7},
 #endif
 
 typedef unsigned char PIXEL;
+typedef unsigned long long LBP;
 
 struct code_book
 {

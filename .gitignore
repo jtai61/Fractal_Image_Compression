@@ -4,6 +4,9 @@
 # bin folder
 bin/
 
+# obj folder
+obj/
+
 # Prerequisites
 *.d
 

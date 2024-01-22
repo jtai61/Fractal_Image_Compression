@@ -2,13 +2,14 @@
 
 function clean()
 {
-	# clean bin folder
+	# delete bin and obj folder
 	rm -rf bin/
+	rm -rf obj/
 
 	# clean ifs folder
 	rm -f ifs/*.ifs
 
-	# clean img/decompressed folder
+	# clean decompressed folder
 	rm -f img/decompressed/*.pgm
 	rm -f img/decompressed/*.raw
 }

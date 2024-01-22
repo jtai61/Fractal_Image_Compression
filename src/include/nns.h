@@ -1,5 +1,5 @@
-#ifndef NN_SEARCH_H
-#define NN_SEARCH_H
+#ifndef NNS_H
+#define NNS_H
 
 #define BUCKETSIZE 10
 

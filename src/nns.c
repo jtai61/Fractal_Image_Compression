@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <assert.h>
-#include "nn_search.h"
+#include "nns.h"
 
 #include "def.h"
 

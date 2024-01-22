@@ -5,7 +5,7 @@
 
 #include "def.h"
 #include "globals.h"
-#include "nn_search.h"
+#include "nns.h"
 #include "prot.h"
 
 double Saupe_FisherCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qalf, int *qbet)

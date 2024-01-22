@@ -123,7 +123,6 @@ int main(int argc, char **argv)
         printf(" Speed-up method: Mc-Saupe\n\n");
         break;
 
-    /* if you want to try a new method you need just to write an indexing and a coding function and call them here */
     case Nandi:
         for (k = 0; k < 8; k++)
             for (h = 0; h < 3; h++)
