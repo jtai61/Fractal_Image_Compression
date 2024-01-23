@@ -29,6 +29,8 @@
 
 #define bound(a) ((a) < 0.0 ? 0 : ((a) > 255.0 ? 255 : a))
 
+#define sign(x) ((x >= 0) ? 1 : 0)
+
 #define MAX_NEIGHBOURS 1000
 
 #define MassCenter 		0

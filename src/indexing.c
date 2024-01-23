@@ -197,7 +197,26 @@ int ShrunkBlock(double **block, int size, int srunk_fact)
     return (size / srunk_fact);
 }
 
-LBP ComputeLBP(double **block, int size, int index)
+LBP ELBP_CI(double **block, int size)
+{
+    double center_pixel;
+    double block_mean = mean(size, block, 0, 0);
+
+    if (size % 2 == 0) /* size is even */
+        center_pixel = (block[size / 2 - 1][size / 2 - 1] + block[size / 2 - 1][size / 2] + block[size / 2][size / 2 - 1] + block[size / 2][size / 2]) / 4;
+    else /* size is odd */
+        center_pixel = block[(size - 1) / 2][(size - 1) / 2];
+
+    return sign(center_pixel - block_mean);
+}
+
+LBP ELBP_NI(double **block, int size, int index)
+{
+
+    return;
+}
+
+LBP ELBP_RD(double **block, int size, int index)
 {
 
     return;
@@ -802,19 +821,4 @@ void ComputeAverageFactorMc()
             average_factor[i] = 1;
         }
     }
-}
-
-int ComputeHammingDistance(LBP lbp1, LBP lbp2)
-{
-    LBP lbp1_lbp2_xor = lbp1 ^ lbp2;
-    int distance = 0;
-
-    /* Brian Kernighan's algorithm */
-    while (lbp1_lbp2_xor)
-    {
-        ++distance;
-        lbp1_lbp2_xor &= (lbp1_lbp2_xor - 1);
-    }
-
-    return distance;
 }

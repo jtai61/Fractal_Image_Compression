@@ -17,8 +17,10 @@ void ComputeAverageFactorMc();
 void ComputeFeatVectDimSaupe();
 void ComputeMcVectors(double **, double **, int, int, double *);
 void ComputeSaupeVectors(double **, int, int, float *);
-LBP ComputeLBP(double **, int, int);
-int ComputeHammingDistance(LBP, LBP);
+LBP ELBP_CI(double **, int);
+LBP ELBP_NI(double **, int, int);
+LBP ELBP_RD(double **, int, int);
+int HammingDistance(LBP, LBP);
 void FisherIndexing(int, int);
 void HurtgenIndexing(int, int);
 void MassCenterIndexing(int, int);
@@ -53,3 +55,5 @@ void piramidal_decoding(int);
 
 double calc_PSNR(char *, char *);
 double calc_SSIM(char *, char *);
+
+double mean(int, double **, int, int);

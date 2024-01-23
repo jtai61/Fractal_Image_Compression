@@ -46,7 +46,7 @@ int mapping[][8] = {{0, 1, 2, 3, 4, 5, 6, 7},
 #endif
 
 typedef unsigned char PIXEL;
-typedef unsigned long long LBP;
+typedef unsigned int LBP;
 
 struct code_book
 {
