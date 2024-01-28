@@ -103,3 +103,24 @@ int HammingDistance(LBP lbp1, LBP lbp2)
 
     return distance;
 }
+
+double BilinearInterpolation(double **block, float target_x, float target_y)
+{
+    int xFloor = (int)target_x, yFloor = (int)target_y;
+
+    // four nearest pixels
+    double left_up_pixel, right_up_pixel, left_down_pixel, right_down_pixel;
+
+    left_up_pixel = block[yFloor][xFloor];
+    right_up_pixel = block[yFloor][xFloor + 1];
+    left_down_pixel = block[yFloor + 1][xFloor];
+    right_down_pixel = block[yFloor + 1][xFloor + 1];
+
+    // interpolation weights
+    float alpha, beta;
+
+    alpha = target_x - xFloor;
+    beta = target_y - yFloor;
+
+    return (1 - alpha) * (1 - beta) * left_up_pixel + alpha * (1 - beta) * right_up_pixel + (1 - alpha) * beta * left_down_pixel + alpha * beta * right_down_pixel;
+}

@@ -101,6 +101,8 @@ EXTERN PIXEL **image1;
 
 EXTERN struct c ***class_polar[8];
 EXTERN struct c *class_fisher[8][3][24];
+EXTERN struct c *class_nandi[8][3][24];
+EXTERN struct c *class_tai[8][3][24];
 EXTERN struct c *class_hurtgen[8][16][24];
 
 EXTERN kdtree ***class_polar_saupe[8];

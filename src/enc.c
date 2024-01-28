@@ -127,17 +127,21 @@ int main(int argc, char **argv)
         for (k = 0; k < 8; k++)
             for (h = 0; h < 3; h++)
                 for (i = 0; i < 24; i++)
-                    class_fisher[k][h][i] = NULL;
+                    class_nandi[k][h][i] = NULL;
 
-        Indexing = FisherIndexing;
-        Coding = FisherCoding;
+        Indexing = NandiIndexing;
+        Coding = NandiCoding;
         printf(" Speed-up method: Nandi\n\n");
         break;
 
     case Tai:
-        ComputeFeatVectDimSaupe();
-        Indexing = Saupe_FisherIndexing;
-        Coding = Saupe_FisherCoding;
+        for (k = 0; k < 8; k++)
+            for (h = 0; h < 3; h++)
+                for (i = 0; i < 24; i++)
+                    class_tai[k][h][i] = NULL;
+
+        Indexing = TaiIndexing;
+        Coding = TaiCoding;
         printf(" Speed-up method: Tai\n\n");
         break;
     }
@@ -188,11 +192,11 @@ int main(int argc, char **argv)
     pack(12, (long)image_height, fp);
     pack(8, (long)int_max_alfa, fp);
 
-    printf("\n Image Entropy      : %f\n", entropy(image_width, image_height, 0, 0));
-    printf(" Image Variance     : %f\n", variance(image_width, image_height, 0, 0));
-    printf(" Entropy threshold  : %f\n", T_ENT);
-    printf(" Variance threshold : %f\n", T_VAR);
-    printf(" Rms threshold      : %f\n\n", T_RMS);
+    printf("\n Image Entropy      : %.2f\n", entropy(image_width, image_height, 0, 0));
+    printf(" Image Variance     : %.2f\n", variance(image_width, image_height, 0, 0));
+    printf(" Entropy threshold  : %.2f\n", T_ENT);
+    printf(" Variance threshold : %.2f\n", T_VAR);
+    printf(" Rms threshold      : %.2f\n\n", T_RMS);
 
     quadtree(0, 0, virtual_size, T_ENT, T_RMS, T_VAR);
 
@@ -203,7 +207,7 @@ int main(int argc, char **argv)
     printf("\n\n Zero_alfa_transformations   : %d\n", zero_alfa_transform);
     printf(" Number of transformations   : %d\n", transforms);
     printf(" Number of comparisons       : %ld\n", comparisons);
-    printf(" Comparisons/Transformations : %f\n", (double)comparisons / transforms);
+    printf(" Comparisons/Transformations : %.2f\n", (double)comparisons / transforms);
     printf(" %d bytes written in %s\n", i, fileout);
 
     if (qtree)
