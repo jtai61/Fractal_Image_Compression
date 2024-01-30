@@ -1,16 +1,4 @@
-#include <stdlib.h>
-#include <assert.h>
-#include "nns.h"
-
-#include "def.h"
-
-#define HEAPMAX 10000
-
-typedef struct
-{
-	float dist;
-	kdtree *t;
-} heapT;
+#include "base.h"
 
 static heapT *h = NULL;
 static int hsize;
@@ -80,6 +68,7 @@ static kdtree *hpop()
 		while (2 * pos <= hsize)
 		{
 			if (2 * pos + 1 <= hsize && h[2 * pos + 1].dist < h[2 * pos].dist)
+			{
 				if (h[2 * pos + 1].dist < h[hsize + 1].dist)
 				{
 					h[pos] = h[2 * pos + 1];
@@ -88,6 +77,7 @@ static kdtree *hpop()
 				}
 				else
 					break;
+			}
 			if (h[2 * pos].dist < h[hsize + 1].dist)
 			{
 				h[pos] = h[2 * pos];

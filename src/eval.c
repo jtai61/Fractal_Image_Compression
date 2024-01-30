@@ -1,11 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-#include "def.h"
 #define EXTERN
-#include "globals.h"
-#include "prot.h"
+#include "base.h"
 
 int main(int argc, char **argv)
 {

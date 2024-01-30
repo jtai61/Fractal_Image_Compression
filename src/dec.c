@@ -1,12 +1,5 @@
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
-#include "def.h"
 #define EXTERN
-#include "globals.h"
-#include "prot.h"
+#include "base.h"
 
 int main(int argc, char **argv)
 {
@@ -216,7 +209,7 @@ void iterative_decoding(int level, int n_iter, double zoo)
 	double pixel;
 	double z_factor;
 	int width, height;
-	static first_time = 0;
+	static int first_time = 0;
 
 	printf("\n");
 	z_factor = zoo / (double)(1 << level);

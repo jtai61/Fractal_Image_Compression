@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-
-#include "def.h"
-#include "globals.h"
+#include "base.h"
 
 void fatal(char *s)
 {
@@ -22,7 +15,7 @@ void help_enc()
 		" -F   Fisher method          (Off)   -X   Hurtgen method              (Off)\n"
 		" -Z   Saupe-Fisher method    (Off)   -S   Saupe method                (Off)\n"
 		" -Y   Saupe-MC method        (Off)   -C   MassCenter method           (On) \n"
-		" -N   Nandi method    	      (Off)   -T   Tai method                  (Off)\n"		
+		" -N   Nandi method    	      (Off)   -T   Tai method                  (Off)\n"
 		" -e # Entropy threshold      (8.0)   -d # Domain step                 (4)  \n"
 		" -r # Rms threshold          (8.0)   -a # Adaptive factor             (1.0)\n"
 		" -v # Variance threshold     (Inf)   -W # Image width                 (512)\n"
@@ -301,8 +294,10 @@ void getopt_dec(int argc, char **argv)
 		strcpy(filein, "ifs/Lena_enc.ifs");
 
 	if (fileout[0] == 1)
+	{
 		if (raw_format)
 			strcpy(fileout, "img/decompressed/Lena_dec.raw");
 		else
 			strcpy(fileout, "img/decompressed/Lena_dec.pgm");
+	}
 }

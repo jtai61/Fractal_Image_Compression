@@ -2,7 +2,6 @@ CC = gcc
 CFLAGS = -Wall -g
 
 SRC_DIR = src
-INC_DIR = $(SRC_DIR)/include
 BIN_DIR = bin
 OBJ_DIR = obj
 
@@ -29,16 +28,16 @@ OBJ_EVAL =	$(OBJ_DIR)/eval.o			\
 all: enc dec eval
 
 enc: $(OBJ_ENC)
-	$(CC) $(CFLAGS) -I$(INC_DIR) $(OBJ_ENC) -o $(BIN_DIR)/enc -lm
+	$(CC) $(CFLAGS) $(OBJ_ENC) -o $(BIN_DIR)/enc -lm
 
 dec: $(OBJ_DEC)
-	$(CC) $(CFLAGS) -I$(INC_DIR) $(OBJ_DEC) -o $(BIN_DIR)/dec -lm
+	$(CC) $(CFLAGS) $(OBJ_DEC) -o $(BIN_DIR)/dec -lm
 
 eval: $(OBJ_EVAL)
-	$(CC) $(CFLAGS) -I$(INC_DIR) $(OBJ_EVAL) -o $(BIN_DIR)/eval -lm
+	$(CC) $(CFLAGS) $(OBJ_EVAL) -o $(BIN_DIR)/eval -lm
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -lm
+	$(CC) $(CFLAGS) -c $< -lm
 	mv *.o $(OBJ_DIR)
 

@@ -1,11 +1,4 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-#include "def.h"
-#include "globals.h"
-#include "prot.h"
+#include "base.h"
 
 void ComputeMc(double **block, int size, double *x, double *y, int s)
 {
@@ -212,19 +205,20 @@ LBP ELBP_CI(double **block, int size)
 
 LBP ELBP_NI(double **block, int size)
 {
-    double target_pixel, targets_sum = 0, targets_mean;
+    double targets_sum = 0, targets_mean;
     float center_x, center_y, target_x, target_y, radius;
     int point_index, total_points;
     LBP ni_lbp = 0;
 
     if (size % 2 == 0) /* block size is even */
     {
-        center_x = ((size / 2) + (size / 2 - 1)) / 2; /* center point x axis */
-        center_y = center_x;                          /* center point y axis */
+        /* center point axis */
+        center_x = ((size / 2) + (size / 2 - 1)) / 2;
+        center_y = center_x;
 
         if (size <= 4)
         {
-            radius = 1;
+            radius = 1.0;
             total_points = 8;
         }
         else
@@ -235,12 +229,13 @@ LBP ELBP_NI(double **block, int size)
     }
     else /* block size is odd */
     {
+        /* center point axis */
         center_x = (size - 1) / 2;
         center_y = center_x;
 
         if (size <= 5)
         {
-            radius = 1;
+            radius = 1.0;
             total_points = 8;
         }
         else
@@ -250,14 +245,17 @@ LBP ELBP_NI(double **block, int size)
         }
     }
 
-    double targets[total_points]; /* all target point pixel value */
+    /* all target point pixel */
+    double targets[total_points];
 
     for (point_index = 0; point_index < total_points; point_index++)
     {
-        target_x = center_x + radius * cosf((TWOPI * point_index) / total_points); /* target point x axis */
-        target_y = center_y - radius * sinf((TWOPI * point_index) / total_points); /* target point y axis */
+        /* target point axis */
+        target_x = center_x + radius * cosf((TWOPI * point_index) / total_points);
+        target_y = center_y - radius * sinf((TWOPI * point_index) / total_points);
 
-        targets[point_index] = BilinearInterpolation(block, target_x, target_y); /* calculate target point pixel value */
+        /* target point pixel */
+        targets[point_index] = BilinearInterpolation(block, target_x, target_y);
         targets_sum += targets[point_index];
     }
 
@@ -272,8 +270,70 @@ LBP ELBP_NI(double **block, int size)
 
 LBP ELBP_RD(double **block, int size)
 {
+    float center_x, center_y, target_1_x, target_1_y, target_2_x, target_2_y, radius_1, radius_2;
+    int point_index, total_points;
+    LBP rd_lbp = 0;
 
-    return;
+    if (size % 2 == 0) /* block size is even */
+    {
+        /* center point axis */
+        center_x = ((size / 2) + (size / 2 - 1)) / 2;
+        center_y = center_x;
+
+        if (size <= 4)
+        {
+            radius_1 = 1.0;
+            radius_2 = 1.5;
+            total_points = 8;
+        }
+        else
+        {
+            radius_1 = 1.5;
+            radius_2 = 3.0;
+            total_points = 16;
+        }
+    }
+    else /* block size is odd */
+    {
+        /* center point axis */
+        center_x = (size - 1) / 2;
+        center_y = center_x;
+
+        if (size <= 5)
+        {
+            radius_1 = 1.0;
+            radius_2 = 2.0;
+            total_points = 8;
+        }
+        else
+        {
+            radius_1 = 1.5;
+            radius_2 = 3.0;
+            total_points = 16;
+        }
+    }
+
+    /* all target point pixel */
+    double targets_1[total_points], targets_2[total_points];
+
+    for (point_index = 0; point_index < total_points; point_index++)
+    {
+        /* target point axis */
+        target_1_x = center_x + radius_1 * cosf((TWOPI * point_index) / total_points);
+        target_1_y = center_y - radius_1 * sinf((TWOPI * point_index) / total_points);
+        target_2_x = center_x + radius_2 * cosf((TWOPI * point_index) / total_points);
+        target_2_y = center_y - radius_2 * sinf((TWOPI * point_index) / total_points);
+        
+        /* target point pixel */
+        targets_1[point_index] = BilinearInterpolation(block, target_1_x, target_1_y);
+        targets_2[point_index] = BilinearInterpolation(block, target_2_x, target_2_y);
+    }
+
+    /* calculate LBP */
+    for (point_index = 0; point_index < total_points; point_index++)
+        rd_lbp += sign(targets_2[point_index] - targets_1[point_index]) * pow(2, point_index);
+
+    return rd_lbp;
 }
 
 void ComputeSaupeVectors(double **block, int size, int index, float *vector)
@@ -362,7 +422,7 @@ void ComputeMcVectors(double **block, double **block_tmp, int size, int index, d
 
 void Saupe_FisherIndexing(int size, int s)
 {
-    int i, j, k;
+    int i, j;
     int count = 0;
     int cbook_size;
     int dim_vectors;
@@ -386,7 +446,6 @@ void Saupe_FisherIndexing(int size, int s)
     {
         for (j = 0; j < image_width - 2 * size + 1; j += SHIFT, count++)
         {
-            k = 0;
             sum = 0.0;
             sum2 = 0.0;
             for (x = 0; x < size; x++)
@@ -427,7 +486,7 @@ void Saupe_FisherIndexing(int size, int s)
 
 void MassCenterIndexing(int size, int s)
 {
-    int i, j, k;
+    int i, j;
     int count = 0;
     int cx, cy;
     struct c *node;
@@ -447,7 +506,6 @@ void MassCenterIndexing(int size, int s)
     {
         for (j = 0; j < image_width - 2 * size + 1; j += SHIFT, count++)
         {
-            k = 0;
             sum = 0.0;
             sum2 = 0.0;
             for (x = 0; x < size; x++)
@@ -485,7 +543,7 @@ void MassCenterIndexing(int size, int s)
 
 void Mc_SaupeIndexing(int size, int s)
 {
-    int i, j, k, h;
+    int i, j, h;
     int count = 0;
     int cx, cy;
     struct c *node;
@@ -505,7 +563,6 @@ void Mc_SaupeIndexing(int size, int s)
     {
         for (j = 0; j < image_width - 2 * size + 1; j += SHIFT, count++)
         {
-            k = 0;
             sum = 0.0;
             sum2 = 0.0;
             for (x = 0; x < size; x++)
@@ -577,7 +634,7 @@ void Mc_SaupeIndexing(int size, int s)
 
 void SaupeIndexing(int size, int s)
 {
-    int i, j, k;
+    int i, j;
     int count = 0;
     int cbook_size;
     int dim_vectors;
@@ -598,7 +655,6 @@ void SaupeIndexing(int size, int s)
     {
         for (j = 0; j < image_width - 2 * size + 1; j += SHIFT, count++)
         {
-            k = 0;
             sum = 0.0;
             sum2 = 0.0;
             for (x = 0; x < size; x++)

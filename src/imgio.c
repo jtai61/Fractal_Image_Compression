@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
-
-#include "def.h"
-#include "globals.h"
-#include "prot.h"
+#include "base.h"
 
 void writeimage_pgm(char *nome, PIXEL **imag, int width, int height)
 {

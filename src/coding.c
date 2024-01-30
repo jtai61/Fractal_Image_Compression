@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <time.h>
-
-#include "def.h"
-#include "globals.h"
-#include "nns.h"
-#include "prot.h"
+#include "base.h"
 
 double Saupe_FisherCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qalf, int *qbet)
 {
@@ -15,7 +7,7 @@ double Saupe_FisherCoding(int atx, int aty, int size, int *xd, int *yd, int *is,
 	int isometry, isom, clas;
 	double dist, alfa, beta;
 	double min = 1000000000.0;
-	double sum, s0, mean;
+	double sum, s0;
 	double det;
 	double t0 = 0.0;
 	double t1 = 0.0;
@@ -47,8 +39,6 @@ double Saupe_FisherCoding(int atx, int aty, int size, int *xd, int *yd, int *is,
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
-
-	mean = t0 / s0;
 
 	newclass(size, range, &isom, &clas);
 	flips(size, range, flip_range, isom);
@@ -174,7 +164,7 @@ double FisherCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *
 	double dist, alfa, beta;
 	double min = 1000000000.0;
 	double sum, s0;
-	double mean, det;
+	double det;
 	double t0 = 0.0;
 	double t1 = 0.0;
 	double t2 = 0.0;
@@ -204,8 +194,6 @@ double FisherCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
-
-	mean = t0 / s0;
 
 	newclass(size, range, &isom, &clas);
 	flips(size, range, flip_range, isom);
@@ -357,7 +345,7 @@ double HurtgenCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int 
 	int hur_first, hur_second;
 	double dist, alfa, beta;
 	double min = 1000000000.0;
-	double sum, s0, mean, det;
+	double sum, s0, det;
 	double t0 = 0.0;
 	double t1 = 0.0;
 	double t2 = 0.0;
@@ -387,8 +375,6 @@ double HurtgenCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int 
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
-
-	mean = t0 / s0;
 
 	for (isom = IDENTITY; isom <= S_DIAGONAL; isom++)
 	{
@@ -552,7 +538,7 @@ double Mc_SaupeCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int
 	int aa, bb, cx, cy;
 	double dist, alfa, beta;
 	double min = 1000000000.0;
-	double sum, s0, mean, det;
+	double sum, s0, det;
 	double t0 = 0.0;
 	double t1 = 0.0;
 	double t2 = 0.0;
@@ -584,8 +570,6 @@ double Mc_SaupeCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
-
-	mean = t0 / s0;
 
 	for (isom = IDENTITY; isom <= S_DIAGONAL; isom++)
 	{
@@ -750,7 +734,7 @@ double MassCenterCoding(int atx, int aty, int size, int *xd, int *yd, int *is, i
 	int a, b, r, t, aa, bb, cx, cy;
 	double dist, alfa, beta;
 	double min = 1000000000.0;
-	double sum, s0, mean, det;
+	double sum, s0, det;
 	double t0 = 0.0;
 	double t1 = 0.0;
 	double t2 = 0.0;
@@ -781,8 +765,6 @@ double MassCenterCoding(int atx, int aty, int size, int *xd, int *yd, int *is, i
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
-
-	mean = t0 / s0;
 
 	for (isom = IDENTITY; isom <= S_DIAGONAL; isom++)
 	{
@@ -940,7 +922,7 @@ double SaupeCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 	int tip, ii, found, counter, isom;
 	double dist, alfa, beta;
 	double min = 1000000000.0;
-	double sum, s0, mean, det;
+	double sum, s0, det;
 	double t0 = 0.0;
 	double t1 = 0.0;
 	double t2 = 0.0;
@@ -971,8 +953,6 @@ double SaupeCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
-
-	mean = t0 / s0;
 
 	for (isom = IDENTITY; isom <= S_DIAGONAL; isom++)
 	{
@@ -1111,7 +1091,7 @@ double NandiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 	double dist, alfa, beta;
 	double min = 1000000000.0;
 	double sum, s0;
-	double mean, det;
+	double det;
 	double t0 = 0.0;
 	double t1 = 0.0;
 	double t2 = 0.0;
@@ -1141,8 +1121,6 @@ double NandiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
-
-	mean = t0 / s0;
 
 	newclass(size, range, &isom, &clas);
 	flips(size, range, flip_range, isom);
@@ -1294,7 +1272,7 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	double dist, alfa, beta;
 	double min = 1000000000.0;
 	double sum, s0;
-	double mean, det;
+	double det;
 	double t0 = 0.0;
 	double t1 = 0.0;
 	double t2 = 0.0;
@@ -1324,8 +1302,6 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
-
-	mean = t0 / s0;
 
 	newclass(size, range, &isom, &clas);
 	flips(size, range, flip_range, isom);
