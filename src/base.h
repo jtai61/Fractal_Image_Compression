@@ -306,7 +306,7 @@ double calc_PSNR(char *, char *);
 double calc_SSIM(char *, char *);
 double mean(int, double **, int, int);
 double BilinearInterpolation(double **, float, float);
-int ELBP_HammingDistance(LBP, LBP, LBP, LBP, LBP, LBP);
+int HammingDistance(LBP, LBP);
 void countingSort(int *, int);
 
 

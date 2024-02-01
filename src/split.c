@@ -90,47 +90,32 @@ double BilinearInterpolation(double **block, float target_x, float target_y)
     // four nearest pixels
     double left_up_pixel, right_up_pixel, left_down_pixel, right_down_pixel;
 
-    left_up_pixel = block[yFloor][xFloor];
-    right_up_pixel = block[yFloor][xFloor + 1];
-    left_down_pixel = block[yFloor + 1][xFloor];
-    right_down_pixel = block[yFloor + 1][xFloor + 1];
+    left_up_pixel = block[xFloor][yFloor];
+    right_up_pixel = block[xFloor][yFloor + 1];
+    left_down_pixel = block[xFloor + 1][yFloor];
+    right_down_pixel = block[xFloor + 1][yFloor + 1];
 
     // interpolation weights
     float alpha, beta;
 
-    alpha = target_x - xFloor;
-    beta = target_y - yFloor;
+    alpha = target_y - yFloor;
+    beta = target_x - xFloor;
 
     return (1 - alpha) * (1 - beta) * left_up_pixel + alpha * (1 - beta) * right_up_pixel + (1 - alpha) * beta * left_down_pixel + alpha * beta * right_down_pixel;
 }
 
-int ELBP_HammingDistance(LBP ci_1, LBP ci_2, LBP ni_1, LBP ni_2, LBP rd_1, LBP rd_2)
+int HammingDistance(LBP num1, LBP num2)
 {
-    LBP ci_xor = ci_1 ^ ci_2, ni_xor = ni_1 ^ ni_2, rd_xor = rd_1 ^ rd_2;
-    int ci_hd = 0, ni_hd = 0, rd_hd = 0;
+    LBP num_xor = num1 ^ num2;
+    int distance = 0;
 
-    /* calculate two ELBP_CI hamming distance */
-    while (ci_xor)
+    while (num_xor)
     {
-        ++ci_hd;
-        ci_xor &= (ci_xor - 1);
+        ++distance;
+        num_xor &= (num_xor - 1);
     }
 
-    /* calculate two ELBP_NI hamming distance */
-    while (ni_xor)
-    {
-        ++ni_hd;
-        ni_xor &= (ni_xor - 1);
-    }
-
-    /* calculate two ELBP_RD hamming distance */
-    while (rd_xor)
-    {
-        ++rd_hd;
-        rd_xor &= (rd_xor - 1);
-    }
-
-    return ci_hd + ni_hd + rd_hd;
+    return distance;
 }
 
 void countingSort(int *data, int size)

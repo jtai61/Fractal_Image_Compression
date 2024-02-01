@@ -127,11 +127,7 @@ int main(int argc, char **argv)
         break;
 
     case Tai:
-        for (k = 0; k < 8; k++)
-            for (h = 0; h < 3; h++)
-                for (i = 0; i < 24; i++)
-                    class_tai[k][h][i] = NULL;
-
+        ComputeFeatVectDimSaupe();
         Indexing = TaiIndexing;
         Coding = TaiCoding;
         printf(" Speed-up method: Tai\n\n");

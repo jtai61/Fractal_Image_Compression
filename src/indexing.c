@@ -213,7 +213,7 @@ LBP ELBP_NI(double **block, int size)
     if (size % 2 == 0) /* block size is even */
     {
         /* center point axis */
-        center_x = ((size / 2) + (size / 2 - 1)) / 2;
+        center_x = (float)((size / 2) + (size / 2 - 1)) / 2;
         center_y = center_x;
 
         if (size <= 4)
@@ -251,8 +251,8 @@ LBP ELBP_NI(double **block, int size)
     for (point_index = 0; point_index < total_points; point_index++)
     {
         /* target point axis */
-        target_x = center_x + radius * cosf((TWOPI * point_index) / total_points);
-        target_y = center_y - radius * sinf((TWOPI * point_index) / total_points);
+        target_x = center_x - radius * sinf((TWOPI * point_index) / total_points);
+        target_y = center_y + radius * cosf((TWOPI * point_index) / total_points);
 
         /* target point pixel */
         targets[point_index] = BilinearInterpolation(block, target_x, target_y);
@@ -277,7 +277,7 @@ LBP ELBP_RD(double **block, int size)
     if (size % 2 == 0) /* block size is even */
     {
         /* center point axis */
-        center_x = ((size / 2) + (size / 2 - 1)) / 2;
+        center_x = (float)((size / 2) + (size / 2 - 1)) / 2;
         center_y = center_x;
 
         if (size <= 4)
@@ -319,10 +319,10 @@ LBP ELBP_RD(double **block, int size)
     for (point_index = 0; point_index < total_points; point_index++)
     {
         /* target point axis */
-        target_1_x = center_x + radius_1 * cosf((TWOPI * point_index) / total_points);
-        target_1_y = center_y - radius_1 * sinf((TWOPI * point_index) / total_points);
-        target_2_x = center_x + radius_2 * cosf((TWOPI * point_index) / total_points);
-        target_2_y = center_y - radius_2 * sinf((TWOPI * point_index) / total_points);
+        target_1_x = center_x - radius_1 * sinf((TWOPI * point_index) / total_points);
+        target_1_y = center_y + radius_1 * cosf((TWOPI * point_index) / total_points);
+        target_2_x = center_x - radius_2 * sinf((TWOPI * point_index) / total_points);
+        target_2_y = center_y + radius_2 * cosf((TWOPI * point_index) / total_points);
         
         /* target point pixel */
         targets_1[point_index] = BilinearInterpolation(block, target_1_x, target_1_y);
@@ -893,24 +893,30 @@ out_loops:
 
 void TaiIndexing(int size, int s)
 {
-    int i, j, k, h;
+    int i, j;
     int count = 0;
-    int iso, clas, var_class;
+    int cbook_size;
+    int dim_vectors;
+    int clas, iso;
     double sum, sum2;
-    double **domi, **flip_domi;
+    double **dom_tmp, **domi, **flip_domi;
     register double pixel;
     register int x, y;
-    struct c *node;
+
+    cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
+
+    dim_vectors = feat_vect_dim[(int)rint(log((double)(size)) / log(2.0))];
+    matrix_allocate(f_vectors[s], dim_vectors, cbook_size, float);
+    codebook[s] = (struct code_book *)malloc(cbook_size * sizeof(struct code_book));
 
     matrix_allocate(domi, size, size, double);
     matrix_allocate(flip_domi, size, size, double);
+    matrix_allocate(dom_tmp, size, size, double);
 
     for (i = 0; i < image_height - 2 * size + 1; i += SHIFT)
     {
-        for (j = 0; j < image_width - 2 * size + 1; j += SHIFT)
+        for (j = 0; j < image_width - 2 * size + 1; j += SHIFT, count++)
         {
-            count++;
-            k = 0;
             sum = 0.0;
             sum2 = 0.0;
             for (x = 0; x < size; x++)
@@ -927,38 +933,25 @@ void TaiIndexing(int size, int s)
 
             flips(size, domi, flip_domi, iso);
 
-            var_class = variance_class(size, flip_domi);
+            ComputeSaupeVectors(flip_domi, size, s, f_vectors[s][count]);
 
-            node = (struct c *)malloc(sizeof(struct c));
-            node->ptr_x = i;
-            node->ptr_y = j;
-            node->sum = sum;
-            node->sum2 = sum2;
-            node->iso = iso;
-            node->next = class_tai[s][clas][var_class];
-            class_tai[s][clas][var_class] = node;
+            codebook[s][count].sum = sum;
+            codebook[s][count].sum2 = sum2;
+            codebook[s][count].ptr_x = i;
+            codebook[s][count].ptr_y = j;
+            codebook[s][count].isom = iso;
         }
-        printf(" Classification (Fisher) domain (%dx%d)  %d \r", size, size, count);
+        printf(" Extracting [%d] features (Saupe)  domain (%dx%d)  %d \r", dim_vectors, size, size, count);
         fflush(stdout);
     }
-
-    /* Find a not empty class */
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 24; j++)
-            if (class_tai[s][i][j] != NULL)
-                goto out_loops;
-
-out_loops:
-
-    /* Make sure no class is empty */
-    for (k = 0; k < 3; k++)
-        for (h = 0; h < 24; h++)
-            if (class_tai[s][k][h] == NULL)
-                class_tai[s][k][h] = class_tai[s][i][j];
-
-    printf("\n");
+    printf("\n Building Kd-tree... ");
+    fflush(stdout);
+    kd_tree[s] = kdtree_build(f_vectors[s], count - 1, dim_vectors);
+    printf("Done\n");
+    fflush(stdout);
 
     free(domi[0]);
+    free(dom_tmp[0]);
     free(flip_domi[0]);
 }
 
