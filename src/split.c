@@ -83,11 +83,22 @@ double mean(int size, double **block, int atx, int aty)
     return sum / (double)(size * size);
 }
 
-double BilinearInterpolation(double **block, float target_x, float target_y)
+double BilinearInterpolation(double **block, int size, float target_x, float target_y)
 {
-    int xFloor = (int)target_x, yFloor = (int)target_y;
+    int xFloor, yFloor;
 
-    // four nearest pixels
+    if (size <= 2)
+    {
+        xFloor = 0;
+        yFloor = 0;
+    }
+    else
+    {
+        xFloor = (int)target_x;
+        yFloor = (int)target_y;
+    }
+
+    /* four nearest pixels */
     double left_up_pixel, right_up_pixel, left_down_pixel, right_down_pixel;
 
     left_up_pixel = block[xFloor][yFloor];
@@ -95,7 +106,7 @@ double BilinearInterpolation(double **block, float target_x, float target_y)
     left_down_pixel = block[xFloor + 1][yFloor];
     right_down_pixel = block[xFloor + 1][yFloor + 1];
 
-    // interpolation weights
+    /* interpolation weights */
     float alpha, beta;
 
     alpha = target_y - yFloor;

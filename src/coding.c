@@ -1279,6 +1279,7 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	static float r_vector[4096];
 	static int nlist[MAX_NEIGHBOURS];
 	register double pixel;
+	LBP r_ci, r_ni, r_rd;
 
 	tip = (int)rint(log((double)size) / log(2.0));
 
@@ -1301,6 +1302,11 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
+
+	/* compute range ELBP */
+	r_ci = ELBP_CI(range, size);
+	r_ni = ELBP_NI(range, size);
+	r_rd = ELBP_RD(range, size);
 
 	newclass(size, range, &isom, &clas);
 	flips(size, range, flip_range, isom);

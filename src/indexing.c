@@ -210,40 +210,18 @@ LBP ELBP_NI(double **block, int size)
     int point_index, total_points;
     LBP ni_lbp = 0;
 
-    if (size % 2 == 0) /* block size is even */
-    {
-        /* center point axis */
-        center_x = (float)((size / 2) + (size / 2 - 1)) / 2;
-        center_y = center_x;
+    /* center point axis */
+    center_x = (float)((size / 2) + (size / 2 - 1)) / 2;
+    center_y = center_x;
 
-        if (size <= 4)
-        {
-            radius = 1.0;
-            total_points = 8;
-        }
-        else
-        {
-            radius = 1.5;
-            total_points = 16;
-        }
-    }
-    else /* block size is odd */
-    {
-        /* center point axis */
-        center_x = (size - 1) / 2;
-        center_y = center_x;
+    /* total number of point */
+    if (size <= 4)
+        total_points = 8;
+    else
+        total_points = 16;
 
-        if (size <= 5)
-        {
-            radius = 1.0;
-            total_points = 8;
-        }
-        else
-        {
-            radius = 1.5;
-            total_points = 16;
-        }
-    }
+    /* radius size */
+    radius = (float)size / 4;
 
     /* all target point pixel */
     double targets[total_points];
@@ -255,7 +233,8 @@ LBP ELBP_NI(double **block, int size)
         target_y = center_y + radius * cosf((TWOPI * point_index) / total_points);
 
         /* target point pixel */
-        targets[point_index] = BilinearInterpolation(block, target_x, target_y);
+        targets[point_index] = BilinearInterpolation(block, size, target_x, target_y);
+
         targets_sum += targets[point_index];
     }
 
@@ -274,44 +253,19 @@ LBP ELBP_RD(double **block, int size)
     int point_index, total_points;
     LBP rd_lbp = 0;
 
-    if (size % 2 == 0) /* block size is even */
-    {
-        /* center point axis */
-        center_x = (float)((size / 2) + (size / 2 - 1)) / 2;
-        center_y = center_x;
+    /* center point axis */
+    center_x = (float)((size / 2) + (size / 2 - 1)) / 2;
+    center_y = center_x;
 
-        if (size <= 4)
-        {
-            radius_1 = 1.0;
-            radius_2 = 1.5;
-            total_points = 8;
-        }
-        else
-        {
-            radius_1 = 1.5;
-            radius_2 = 3.0;
-            total_points = 16;
-        }
-    }
-    else /* block size is odd */
-    {
-        /* center point axis */
-        center_x = (size - 1) / 2;
-        center_y = center_x;
+    /* total number of point */
+    if (size <= 4)
+        total_points = 8;
+    else
+        total_points = 16;
 
-        if (size <= 5)
-        {
-            radius_1 = 1.0;
-            radius_2 = 2.0;
-            total_points = 8;
-        }
-        else
-        {
-            radius_1 = 1.5;
-            radius_2 = 3.0;
-            total_points = 16;
-        }
-    }
+    /* radius size */
+    radius_1 = (float)size / 6;
+    radius_2 = radius_1 * 2;
 
     /* all target point pixel */
     double targets_1[total_points], targets_2[total_points];
@@ -323,10 +277,10 @@ LBP ELBP_RD(double **block, int size)
         target_1_y = center_y + radius_1 * cosf((TWOPI * point_index) / total_points);
         target_2_x = center_x - radius_2 * sinf((TWOPI * point_index) / total_points);
         target_2_y = center_y + radius_2 * cosf((TWOPI * point_index) / total_points);
-        
+
         /* target point pixel */
-        targets_1[point_index] = BilinearInterpolation(block, target_1_x, target_1_y);
-        targets_2[point_index] = BilinearInterpolation(block, target_2_x, target_2_y);
+        targets_1[point_index] = BilinearInterpolation(block, size, target_1_x, target_1_y);
+        targets_2[point_index] = BilinearInterpolation(block, size, target_2_x, target_2_y);
     }
 
     /* calculate LBP */
@@ -899,9 +853,10 @@ void TaiIndexing(int size, int s)
     int dim_vectors;
     int clas, iso;
     double sum, sum2;
-    double **dom_tmp, **domi, **flip_domi;
+    double **domi, **flip_domi;
     register double pixel;
     register int x, y;
+    LBP d_ci, d_ni, d_rd;
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
 
@@ -911,7 +866,6 @@ void TaiIndexing(int size, int s)
 
     matrix_allocate(domi, size, size, double);
     matrix_allocate(flip_domi, size, size, double);
-    matrix_allocate(dom_tmp, size, size, double);
 
     for (i = 0; i < image_height - 2 * size + 1; i += SHIFT)
     {
@@ -927,6 +881,11 @@ void TaiIndexing(int size, int s)
                     sum2 += pixel * pixel;
                     domi[x][y] = pixel;
                 }
+
+            /* compute domain ELBP */
+            d_ci = ELBP_CI(domi, size);
+            d_ni = ELBP_NI(domi, size);
+            d_rd = ELBP_RD(domi, size);
 
             /* Compute the symmetry operation which brings the domain in the canonical orientation */
             newclass(size, domi, &iso, &clas);
@@ -951,7 +910,6 @@ void TaiIndexing(int size, int s)
     fflush(stdout);
 
     free(domi[0]);
-    free(dom_tmp[0]);
     free(flip_domi[0]);
 }
 

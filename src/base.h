@@ -305,7 +305,7 @@ void piramidal_decoding(int);
 double calc_PSNR(char *, char *);
 double calc_SSIM(char *, char *);
 double mean(int, double **, int, int);
-double BilinearInterpolation(double **, float, float);
+double BilinearInterpolation(double **, int, float, float);
 int HammingDistance(LBP, LBP);
 void countingSort(int *, int);
 
