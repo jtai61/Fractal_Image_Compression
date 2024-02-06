@@ -6,11 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <math.h>
+#include <float.h>
 #include <time.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <assert.h>
+#include <sys/stat.h>
 
 /* constant define */
 
@@ -36,6 +39,9 @@
 #define BUCKETSIZE 		10
 #define HEAPMAX 		10000
 #define TWOPI 			6.2831853
+
+#define TRUE 			1
+#define FALSE 			0
 
 /* function define */
 
@@ -116,6 +122,54 @@ typedef struct
 	float dist;
 	kdtree *t;
 } heapT;
+
+typedef struct s_data
+{
+	int n_neighbors;
+	int leaf_size;
+	double **data;
+	int n_samples;
+	int n_features;
+} t_data;
+
+typedef struct s_nheap
+{
+	double **distances;
+	int **indices;
+	int n_pts;
+	int n_nbrs;
+} t_nheap;
+
+typedef struct s_knn
+{
+	double **distances;
+	int **indices;
+	int n_samples;
+	int n_neighbors;
+} t_knn;
+
+typedef struct s_nodedata
+{
+	int idx_start;
+	int idx_end;
+	int is_leaf;
+	double radius;
+} t_nodedata;
+
+typedef struct s_btree
+{
+	double **data;
+	int *idx_array;
+	t_nodedata *node_data;
+	double ***node_bounds;
+
+	int n_samples;
+	int n_features;
+
+	int leaf_size;
+	int n_levels;
+	int n_nodes;
+} t_btree;
 
 /* global variable */
 
@@ -292,8 +346,20 @@ void help_enc();
 kdtree *kdtree_build(float **, int, int);
 void kdtree_free(kdtree *);
 int kdtree_search(float *, float **, int, kdtree *, float, int, int *);
-long unpack(int size, FILE *fin);
-void read_transformations(int atx, int aty, int size);
+double manhattan_dist(double *, double *, int);
+double min_dist(t_btree *, int, double *);
+t_nheap *nheap_init(int, int);
+double nheap_largest(t_nheap *, int);
+int nheap_push(t_nheap *, int, double, int);
+t_knn nheap_get_arrays(t_nheap *);
+t_btree *btree_init(double **, int, int, int);
+t_knn btree_query(t_btree *, double **, int, int, int);
+void free_2d_double(double **, int);
+void free_2d_int(int **, int);
+void free_tree(t_btree *);
+void free_knn(t_knn, int);
+long unpack(int, FILE *);
+void read_transformations(int, int, int);
 void writeimage_pgm(char *, PIXEL **, int, int);
 void writeimage_raw(char *, PIXEL **, int, int);
 void writeimage_pipe(FILE *, PIXEL **, int, int);
@@ -308,6 +374,5 @@ double mean(int, double **, int, int);
 double BilinearInterpolation(double **, int, float, float);
 int HammingDistance(LBP, LBP);
 void countingSort(int *, int);
-
 
 #endif

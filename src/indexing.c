@@ -856,7 +856,6 @@ void TaiIndexing(int size, int s)
     double **domi, **flip_domi;
     register double pixel;
     register int x, y;
-    LBP d_ci, d_ni, d_rd;
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
 
@@ -881,11 +880,6 @@ void TaiIndexing(int size, int s)
                     sum2 += pixel * pixel;
                     domi[x][y] = pixel;
                 }
-
-            /* compute domain ELBP */
-            d_ci = ELBP_CI(domi, size);
-            d_ni = ELBP_NI(domi, size);
-            d_rd = ELBP_RD(domi, size);
 
             /* Compute the symmetry operation which brings the domain in the canonical orientation */
             newclass(size, domi, &iso, &clas);
