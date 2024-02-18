@@ -136,8 +136,16 @@ int main(int argc, char **argv)
 
     contraction(contract, image, 0, 0);
 
+    srand(time(NULL));
+
+    start_clock = clock();
+
     for (i = (int)rint(log((double)2) / log(2.0)); i <= (int)rint(log((double)max_size) / log(2.0)); i++)
         Indexing((int)rint(pow(2.0, (double)i)), i);
+
+    end_clock = clock();
+
+    printf("\n build time: %.2f sec\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
 
     bits_per_coordinate_w = ceil(log(image_width / SHIFT) / log(2.0));
     bits_per_coordinate_h = ceil(log(image_height / SHIFT) / log(2.0));
@@ -186,7 +194,13 @@ int main(int argc, char **argv)
     printf(" Variance threshold : %.2f\n", T_VAR);
     printf(" Rms threshold      : %.2f\n\n", T_RMS);
 
+    start_clock = clock();
+
     quadtree(0, 0, virtual_size, T_ENT, T_RMS, T_VAR);
+
+    end_clock = clock();
+
+    printf("\n\n search time: %.2f sec", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
 
     pack(-1, (long)0, fp);
     i = pack(-2, (long)0, fp);

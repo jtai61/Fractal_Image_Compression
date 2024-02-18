@@ -233,9 +233,9 @@ void getopt_enc(int argc, char **argv)
 		}
 
 	if (filein[0] == 1)
-		strcpy(filein, "img/uncompressed/Lena.raw");
+		strcpy(filein, "/home/joe/Fractal_Image_Compression/img/uncompressed/Lena.raw");
 	if (fileout[0] == 1)
-		strcpy(fileout, "ifs/Lena_enc.ifs");
+		strcpy(fileout, "/home/joe/Fractal_Image_Compression/ifs/Lena_enc.ifs");
 
 	if (min_size > max_size)
 		fatal("\n -m flag value greater tham -M flag value");
@@ -291,13 +291,13 @@ void getopt_dec(int argc, char **argv)
 		}
 
 	if (filein[0] == 1)
-		strcpy(filein, "ifs/Lena_enc.ifs");
+		strcpy(filein, "/home/joe/Fractal_Image_Compression/ifs/Lena_enc.ifs");
 
 	if (fileout[0] == 1)
 	{
 		if (raw_format)
-			strcpy(fileout, "img/decompressed/Lena_dec.raw");
+			strcpy(fileout, "/home/joe/Fractal_Image_Compression/img/decompressed/Lena_dec.raw");
 		else
-			strcpy(fileout, "img/decompressed/Lena_dec.pgm");
+			strcpy(fileout, "/home/joe/Fractal_Image_Compression/img/decompressed/Lena_dec.pgm");
 	}
 }

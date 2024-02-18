@@ -751,3 +751,193 @@ void free_knn(t_knn knn, int row)
 	free_2d_double(knn.distances, row);
 	free_2d_int(knn.indices, row);
 }
+
+// Generate a random number from a p-stable distribution
+// p is the stability parameter, 0 < p <= 2
+// c is a constant scaling factor
+double p_stable_random(double p, double c)
+{
+	double u = (double)rand() / RAND_MAX * PI - PI / 2; // Uniform in [-pi/2, pi/2]
+	double w = -log((double)rand() / RAND_MAX);			// Exponential with mean 1
+
+	if (p == 1.0) // Cauchy distribution
+	{
+		return c * tan(u);
+	}
+	else if (p == 2.0) // Gaussian distribution
+	{
+		return c * sqrt(2 * w) * cos(u);
+	}
+	else // General case
+	{
+		double v, x, y;
+
+		v = pow(w * cos(u), 1 / p);		   // v = w^(1/p) * cos(u)^(1/p)
+		x = v * cos((1 - p) * u) / cos(u); // x = v * cos((1-p)u) / cos(u)
+		y = v * sin((1 - p) * u) / cos(u); // y = v * sin((1-p)u) / cos(u)
+
+		return c * x / pow(fabs(y), (1 - p) / p); // return c * x / |y|^(1-1/p)
+	}
+}
+
+// Generate a random projection vector from a p-stable distribution
+// p is the stability parameter, 0 < p <= 2
+// c is a constant scaling factor
+// v is an array to store the vector
+void p_stable_projection(double p, double c, double *v, int vector_dim)
+{
+	for (int i = 0; i < vector_dim; i++)
+	{
+		v[i] = p_stable_random(p, c);
+	}
+}
+
+// Compute the dot product of two vectors
+// u and v are the vectors, each with vector_dim elements
+double dot_product(double *u, double *v, int vector_dim)
+{
+	double sum = 0.0;
+
+	for (int i = 0; i < vector_dim; i++)
+	{
+		sum += u[i] * v[i];
+	}
+
+	return sum;
+}
+
+// Compute the L2 norm of a vector
+// v is the vector with vector_dim elements
+double l2_norm(double *v, int vector_dim)
+{
+	return sqrt(dot_product(v, v, vector_dim));
+}
+
+// Compute the L2 distance between two points
+// u and v are the points, each with vector_dim elements
+double l2_distance(double *u, double *v, int vector_dim)
+{
+	double diff[vector_dim];
+
+	for (int i = 0; i < vector_dim; i++)
+	{
+		diff[i] = u[i] - v[i];
+	}
+
+	return l2_norm(diff, vector_dim);
+}
+
+// Hash a point using a p-stable hash function
+// p is the stability parameter, 0 < p <= 2
+// x is the point with vector_dim elements
+// a is the projection vector with vector_dim elements
+// b is a random shift in [0, BUCKET_WIDTH)
+// BUCKET_WIDTH is the width of the hash bucket
+int p_stable_hash(double p, double *x, double *proj_vector, double random_shift, int vector_dim)
+{
+	return (int)floor((dot_product(x, proj_vector, vector_dim) + random_shift) / BUCKET_WIDTH);
+}
+
+HashTable *build_hash_table(double p, double **vectors, int num_vector, int vector_dim)
+{
+	HashTable *hash_table_tmp = (HashTable *)malloc(sizeof(HashTable));
+
+	hash_table_tmp->hash_values = (int **)malloc(num_vector * sizeof(int *));
+
+	for (int i = 0; i < num_vector; i++)
+	{
+		hash_table_tmp->hash_values[i] = (int *)malloc(NUM_HASH_FUNC * sizeof(int));
+
+		for (int j = 0; j < NUM_HASH_FUNC; j++)
+		{
+			hash_table_tmp->hash_func[j].proj_vector = (double *)malloc(vector_dim * sizeof(double));
+
+			// Generate a projection vector from a p-stable distribution
+			p_stable_projection(p, 1.0, hash_table_tmp->hash_func[j].proj_vector, vector_dim);
+
+			// Generate a random shift in [0, BUCKET_WIDTH)
+			hash_table_tmp->hash_func[j].random_shift = (double)rand() / RAND_MAX * BUCKET_WIDTH;
+
+			// Hash each vector using hashing functions
+			hash_table_tmp->hash_values[i][j] = p_stable_hash(p, vectors[i], hash_table_tmp->hash_func[j].proj_vector, hash_table_tmp->hash_func[j].random_shift, vector_dim);
+		}
+	}
+
+	return hash_table_tmp;
+}
+
+void hash_table_search(double p, double *vector, double **vectors, int num_vector, int vector_dim, HashTable *hash_table, int *knn)
+{
+	int NN[num_vector];
+	double dist[num_vector];
+	int count = 0;
+
+	// Compute the hash value of the query point
+	int H[NUM_HASH_FUNC];
+	for (int k = 0; k < NUM_HASH_FUNC; k++)
+	{
+		H[k] = p_stable_hash(p, vector, hash_table->hash_func[k].proj_vector, hash_table->hash_func[k].random_shift, vector_dim);
+	}
+
+	// Scan the points and find the candidates that have at least one hash value in common with the query point
+	for (int n = 0; n < num_vector; n++)
+	{
+		int match = 0; // A flag to indicate if there is a hash value match
+		for (int k = 0; k < NUM_HASH_FUNC; k++)
+		{
+			if (hash_table->hash_values[n][k] == H[k])
+			{
+				match = 1; // Found a match
+				break;
+			}
+		}
+		if (match)
+		{ // This point is a candidate
+			// Compute the distance between the query point and the candidate point
+			double d = l2_distance(vector, vectors[n], vector_dim);
+			// Check if the distance is within the query range
+			if (d <= QUERY_RANGE)
+			{
+				// Check if the distance is within the approximation ratio
+				if (d <= APPROX_RATIO * QUERY_RANGE)
+				{
+					// This point is an approximate nearest neighbor
+					NN[count] = n;	 // Store the index of the point
+					dist[count] = d; // Store the distance of the point
+					count++;		 // Increment the count
+				}
+			}
+		}
+	}
+
+	// Create a hash set to store the indices of the points that have been selected as nearest neighbors
+	int set[num_vector];
+	double knn_dist[K] = {[0 ...(K - 1)] = INFINITY};
+
+	memset(set, 0, sizeof(set));
+
+	// Scan the approximate nearest neighbors in each table
+	for (int i = 0; i < count; i++)
+	{
+		// Check if the point has already been selected as a nearest neighbor
+		if (set[NN[i]] == 0)
+		{ // The point is not in the hash set
+			// Check if the distance is smaller than the current k-th nearest distance
+			if (dist[i] < knn_dist[K - 1])
+			{
+				// Insert the point into the k nearest neighbors array in ascending order of distance
+				int j = K - 1;
+				while (j > 0 && dist[i] < knn_dist[j - 1])
+				{
+					knn[j] = knn[j - 1];
+					knn_dist[j] = knn_dist[j - 1];
+					j--;
+				}
+				knn[j] = NN[i];
+				knn_dist[j] = dist[i];
+				// Add the point to the hash set
+				set[NN[i]] = 1;
+			}
+		}
+	}
+}

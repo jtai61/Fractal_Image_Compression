@@ -857,6 +857,8 @@ void TaiIndexing(int size, int s)
     register double pixel;
     register int x, y;
 
+    double p = 2.0; // Gaussian distribution
+
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
 
     dim_vectors = feat_vect_dim[(int)rint(log((double)(size)) / log(2.0))];
@@ -883,9 +885,7 @@ void TaiIndexing(int size, int s)
 
             /* Compute the symmetry operation which brings the domain in the canonical orientation */
             newclass(size, domi, &iso, &clas);
-
             flips(size, domi, flip_domi, iso);
-
             ComputeSaupeVectors(flip_domi, size, s, f_vectors[s][count]);
 
             codebook[s][count].sum = sum;
@@ -897,9 +897,11 @@ void TaiIndexing(int size, int s)
         printf(" Extracting [%d] features (Saupe)  domain (%dx%d)  %d \r", dim_vectors, size, size, count);
         fflush(stdout);
     }
-    printf("\n Building Kd-tree... ");
+    num_f_vector[s] = count;
+    printf("\n Building hashing tables... ");
     fflush(stdout);
-    kd_tree[s] = kdtree_build(f_vectors[s], count - 1, dim_vectors);
+    hash_table[s] = build_hash_table(p, (double **)f_vectors[s], num_f_vector[s], dim_vectors);
+    // kd_tree[s] = kdtree_build(f_vectors[s], count - 1, dim_vectors);
     printf("Done\n");
     fflush(stdout);
 

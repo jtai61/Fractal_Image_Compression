@@ -43,6 +43,13 @@
 #define TRUE 			1
 #define FALSE 			0
 
+#define PI 3.14159265358979323846
+#define NUM_HASH_FUNC 5   // Number of the hash functions per table
+#define BUCKET_WIDTH 10.0  // Width of the hash buckets
+#define QUERY_RANGE 30.0  // Radius of the query range
+#define APPROX_RATIO 10.0 // Constant factor for the approximation ratio
+#define K 50              // Number of the nearest neighbors
+
 /* function define */
 
 #define matrix_allocate(matrix, hsize, vsize, TYPE)                           \
@@ -171,6 +178,18 @@ typedef struct s_btree
 	int n_nodes;
 } t_btree;
 
+typedef struct
+{
+    double *proj_vector;
+    double random_shift;
+} HashFunc;
+
+typedef struct
+{
+    HashFunc hash_func[NUM_HASH_FUNC];
+    int **hash_values;
+} HashTable;
+
 /* global variable */
 
 #ifndef EXTERN
@@ -250,6 +269,14 @@ EXTERN float **f_vectors[8];
 EXTERN kdtree *kd_tree[8];
 EXTERN int feat_vect_dim[8];
 EXTERN int average_factor[8];
+
+EXTERN HashTable *hash_table[8];
+
+EXTERN int num_f_vector[8];
+
+EXTERN clock_t start_clock;
+EXTERN clock_t end_clock;
+
 EXTERN int n_features INIT(= 16);
 EXTERN int shrunk_factor_mc INIT(= 1);
 EXTERN int shrunk_factor_saupe INIT(= 0);
@@ -288,8 +315,8 @@ EXTERN long comparisons INIT(= 0);
 EXTERN int transforms INIT(= 0);
 EXTERN int zeroalfa;
 
-EXTERN char filein[50];
-EXTERN char fileout[50];
+EXTERN char filein[100];
+EXTERN char fileout[100];
 
 EXTERN PIXEL **image;
 EXTERN PIXEL **qtt;
@@ -358,6 +385,14 @@ void free_2d_double(double **, int);
 void free_2d_int(int **, int);
 void free_tree(t_btree *);
 void free_knn(t_knn, int);
+double p_stable_random(double, double);
+void p_stable_projection(double, double, double *, int);
+double dot_product(double *, double *, int);
+double l2_norm(double *, int);
+double l2_distance(double *, double *, int);
+int p_stable_hash(double, double *, double *, double, int);
+HashTable *build_hash_table(double, double **, int, int);
+void hash_table_search(double, double *, double **, int, int, HashTable *, int *);
 long unpack(int, FILE *);
 void read_transformations(int, int, int);
 void writeimage_pgm(char *, PIXEL **, int, int);

@@ -1277,8 +1277,11 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	double s1 = 0.0;
 	double s2 = 0.0;
 	static float r_vector[4096];
-	static int nlist[MAX_NEIGHBOURS];
+	// static int nlist[MAX_NEIGHBOURS];
 	register double pixel;
+
+	double p = 2.0; // Gaussian distribution
+	int nlist[K] = {[0 ...(K - 1)] = -1};
 
 	tip = (int)rint(log((double)size) / log(2.0));
 
@@ -1306,9 +1309,10 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	flips(size, range, flip_range, isom);
 	ComputeSaupeVectors(flip_range, size, tip, r_vector);
 
-	found = kdtree_search(r_vector, f_vectors[tip], feat_vect_dim[tip], kd_tree[tip], eps, matches, nlist);
+	hash_table_search(p, r_vector, (double **)f_vectors[tip], num_f_vector[tip], feat_vect_dim[tip], hash_table[tip], nlist);
+	// found = kdtree_search(r_vector, f_vectors[tip], feat_vect_dim[tip], kd_tree[tip], eps, matches, nlist);
 
-	for (ii = 0; ii < found; ii++)
+	for (ii = 0; ii < K; ii++)
 	{
 		comparisons++;
 		counter++;
