@@ -48,7 +48,7 @@
 #define BUCKET_WIDTH 10.0  // Width of the hash buckets
 #define QUERY_RANGE 30.0  // Radius of the query range
 #define APPROX_RATIO 10.0 // Constant factor for the approximation ratio
-#define K 50              // Number of the nearest neighbors
+#define K 100              // Number of the nearest neighbors
 
 /* function define */
 
@@ -98,6 +98,7 @@ struct code_book
 	short isom;
 	double sum;
 	double sum2;
+	double var;
 };
 
 struct c
@@ -393,6 +394,8 @@ double l2_distance(double *, double *, int);
 int p_stable_hash(double, double *, double *, double, int);
 HashTable *build_hash_table(double, double **, int, int);
 void hash_table_search(double, double *, double **, int, int, HashTable *, int *);
+int compare_2(const void *, const void *);
+void binary_knn_search(struct code_book *, int, double, int, int *);
 long unpack(int, FILE *);
 void read_transformations(int, int, int);
 void writeimage_pgm(char *, PIXEL **, int, int);

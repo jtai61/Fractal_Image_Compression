@@ -856,17 +856,17 @@ void TaiIndexing(int size, int s)
     double **domi, **flip_domi;
     register double pixel;
     register int x, y;
-
-    double p = 2.0; // Gaussian distribution
+    double mean, mean2, variance;
+    // double p = 2.0; // Gaussian distribution
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
 
-    dim_vectors = feat_vect_dim[(int)rint(log((double)(size)) / log(2.0))];
-    matrix_allocate(f_vectors[s], dim_vectors, cbook_size, float);
+    // dim_vectors = feat_vect_dim[(int)rint(log((double)(size)) / log(2.0))];
+    // matrix_allocate(f_vectors[s], dim_vectors, cbook_size, float);
     codebook[s] = (struct code_book *)malloc(cbook_size * sizeof(struct code_book));
 
     matrix_allocate(domi, size, size, double);
-    matrix_allocate(flip_domi, size, size, double);
+    // matrix_allocate(flip_domi, size, size, double);
 
     for (i = 0; i < image_height - 2 * size + 1; i += SHIFT)
     {
@@ -885,28 +885,34 @@ void TaiIndexing(int size, int s)
 
             /* Compute the symmetry operation which brings the domain in the canonical orientation */
             newclass(size, domi, &iso, &clas);
-            flips(size, domi, flip_domi, iso);
-            ComputeSaupeVectors(flip_domi, size, s, f_vectors[s][count]);
+            // flips(size, domi, flip_domi, iso);
+            // ComputeSaupeVectors(flip_domi, size, s, f_vectors[s][count]);
+
+            mean = sum / (size * size);
+            mean2 = sum2 / (size * size);
+            variance = mean2 - mean * mean;
 
             codebook[s][count].sum = sum;
             codebook[s][count].sum2 = sum2;
             codebook[s][count].ptr_x = i;
             codebook[s][count].ptr_y = j;
             codebook[s][count].isom = iso;
+            codebook[s][count].var = variance;
         }
-        printf(" Extracting [%d] features (Saupe)  domain (%dx%d)  %d \r", dim_vectors, size, size, count);
+        printf(" Building codebook of domain (%dx%d)  %d \r", size, size, count);
         fflush(stdout);
     }
     num_f_vector[s] = count;
-    printf("\n Building hashing tables... ");
+    printf("\n Sorting codebook by variance... ");
     fflush(stdout);
-    hash_table[s] = build_hash_table(p, (double **)f_vectors[s], num_f_vector[s], dim_vectors);
+    qsort(codebook[s], num_f_vector[s], sizeof(struct code_book), compare_2);
+    // hash_table[s] = build_hash_table(p, (double **)f_vectors[s], num_f_vector[s], dim_vectors);
     // kd_tree[s] = kdtree_build(f_vectors[s], count - 1, dim_vectors);
     printf("Done\n");
     fflush(stdout);
 
     free(domi[0]);
-    free(flip_domi[0]);
+    // free(flip_domi[0]);
 }
 
 void ComputeFeatVectDimSaupe()

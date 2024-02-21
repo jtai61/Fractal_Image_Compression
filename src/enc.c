@@ -127,7 +127,7 @@ int main(int argc, char **argv)
         break;
 
     case Tai:
-        ComputeFeatVectDimSaupe();
+        // ComputeFeatVectDimSaupe();
         Indexing = TaiIndexing;
         Coding = TaiCoding;
         printf(" Speed-up method: Tai\n\n");
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 
     contraction(contract, image, 0, 0);
 
-    srand(time(NULL));
+    // srand(time(NULL));
 
     start_clock = clock();
 
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 
     end_clock = clock();
 
-    printf("\n build time: %.2f sec\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
+    printf("\n build time: %.4f sec\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
 
     bits_per_coordinate_w = ceil(log(image_width / SHIFT) / log(2.0));
     bits_per_coordinate_h = ceil(log(image_height / SHIFT) / log(2.0));
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
 
     end_clock = clock();
 
-    printf("\n\n search time: %.2f sec", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
+    printf("\n\n search time: %.4f sec", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
 
     pack(-1, (long)0, fp);
     i = pack(-2, (long)0, fp);

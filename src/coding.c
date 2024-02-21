@@ -1279,9 +1279,10 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	static float r_vector[4096];
 	// static int nlist[MAX_NEIGHBOURS];
 	register double pixel;
+	double r_mean, r_mean2, r_variance;
 
-	double p = 2.0; // Gaussian distribution
-	int nlist[K] = {[0 ...(K - 1)] = -1};
+	// double p = 2.0; // Gaussian distribution
+	int nlist[K];
 
 	tip = (int)rint(log((double)size) / log(2.0));
 
@@ -1306,10 +1307,15 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 		}
 
 	newclass(size, range, &isom, &clas);
-	flips(size, range, flip_range, isom);
-	ComputeSaupeVectors(flip_range, size, tip, r_vector);
+	// flips(size, range, flip_range, isom);
+	// ComputeSaupeVectors(flip_range, size, tip, r_vector);
 
-	hash_table_search(p, r_vector, (double **)f_vectors[tip], num_f_vector[tip], feat_vect_dim[tip], hash_table[tip], nlist);
+	r_mean = t0 / s0;
+	r_mean2 = t2 / s0;
+	r_variance = r_mean2 - r_mean * r_mean;
+
+	binary_knn_search(codebook[tip], num_f_vector[tip], r_variance, K, nlist);
+	// hash_table_search(p, r_vector, (double **)f_vectors[tip], num_f_vector[tip], feat_vect_dim[tip], hash_table[tip], nlist);
 	// found = kdtree_search(r_vector, f_vectors[tip], feat_vect_dim[tip], kd_tree[tip], eps, matches, nlist);
 
 	for (ii = 0; ii < K; ii++)
