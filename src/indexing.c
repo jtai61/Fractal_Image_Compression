@@ -374,6 +374,24 @@ void ComputeMcVectors(double **block, double **block_tmp, int size, int index, d
     }
 }
 
+void ComputeBitmapVectors(double **block, int size, double mean, unsigned int *vector)
+{
+    int i, j, k;
+    unsigned int sum;
+
+    for (i = 0; i < size; i++)
+    {        
+        for (j = 0, k = size - 1, sum = 0; j < size; j++, k--)
+        {
+            if (block[i][j] >= mean)
+            {
+                sum += pow(2, k);
+            }
+        }
+        vector[i] = sum;
+    }
+}
+
 void Saupe_FisherIndexing(int size, int s)
 {
     int i, j;
@@ -856,17 +874,16 @@ void TaiIndexing(int size, int s)
     double **domi, **flip_domi;
     register double pixel;
     register int x, y;
-    double mean, mean2, variance;
-    // double p = 2.0; // Gaussian distribution
+    double mean;
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
 
-    // dim_vectors = feat_vect_dim[(int)rint(log((double)(size)) / log(2.0))];
-    // matrix_allocate(f_vectors[s], dim_vectors, cbook_size, float);
+    dim_vectors = feat_vect_dim[(int)rint(log((double)(size)) / log(2.0))];
+    matrix_allocate(f_vectors[s], dim_vectors, cbook_size, float);
     codebook[s] = (struct code_book *)malloc(cbook_size * sizeof(struct code_book));
 
     matrix_allocate(domi, size, size, double);
-    // matrix_allocate(flip_domi, size, size, double);
+    matrix_allocate(flip_domi, size, size, double);
 
     for (i = 0; i < image_height - 2 * size + 1; i += SHIFT)
     {
@@ -874,7 +891,9 @@ void TaiIndexing(int size, int s)
         {
             sum = 0.0;
             sum2 = 0.0;
+
             for (x = 0; x < size; x++)
+            {
                 for (y = 0; y < size; y++)
                 {
                     pixel = contract[x + (i >> 1)][y + (j >> 1)];
@@ -882,22 +901,25 @@ void TaiIndexing(int size, int s)
                     sum2 += pixel * pixel;
                     domi[x][y] = pixel;
                 }
+            }
+            
+            mean = sum / (size * size);
 
             /* Compute the symmetry operation which brings the domain in the canonical orientation */
             newclass(size, domi, &iso, &clas);
-            // flips(size, domi, flip_domi, iso);
+            flips(size, domi, flip_domi, iso);
             // ComputeSaupeVectors(flip_domi, size, s, f_vectors[s][count]);
+            ComputeBitmapVectors(flip_domi, size, mean, (unsigned int *)f_vectors[s][count]);
 
-            mean = sum / (size * size);
-            mean2 = sum2 / (size * size);
-            variance = mean2 - mean * mean;
+            // mean2 = sum2 / (size * size);
+            // variance = mean2 - mean * mean;
 
             codebook[s][count].sum = sum;
             codebook[s][count].sum2 = sum2;
             codebook[s][count].ptr_x = i;
             codebook[s][count].ptr_y = j;
             codebook[s][count].isom = iso;
-            codebook[s][count].var = variance;
+            // codebook[s][count].var = variance;
         }
         printf(" Building codebook of domain (%dx%d)  %d \r", size, size, count);
         fflush(stdout);
@@ -905,14 +927,14 @@ void TaiIndexing(int size, int s)
     num_f_vector[s] = count;
     printf("\n Sorting codebook by variance... ");
     fflush(stdout);
-    qsort(codebook[s], num_f_vector[s], sizeof(struct code_book), compare_2);
+    // qsort(codebook[s], num_f_vector[s], sizeof(struct code_book), compare_2);
     // hash_table[s] = build_hash_table(p, (double **)f_vectors[s], num_f_vector[s], dim_vectors);
     // kd_tree[s] = kdtree_build(f_vectors[s], count - 1, dim_vectors);
     printf("Done\n");
     fflush(stdout);
 
     free(domi[0]);
-    // free(flip_domi[0]);
+    free(flip_domi[0]);
 }
 
 void ComputeFeatVectDimSaupe()

@@ -127,7 +127,7 @@ int main(int argc, char **argv)
         break;
 
     case Tai:
-        // ComputeFeatVectDimSaupe();
+        ComputeFeatVectDimSaupe();
         Indexing = TaiIndexing;
         Coding = TaiCoding;
         printf(" Speed-up method: Tai\n\n");

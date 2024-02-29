@@ -1276,13 +1276,14 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	double t2 = 0.0;
 	double s1 = 0.0;
 	double s2 = 0.0;
-	static float r_vector[4096];
-	// static int nlist[MAX_NEIGHBOURS];
+	// static float r_vector[4096];
+	static int nlist[MAX_NEIGHBOURS];
 	register double pixel;
-	double r_mean, r_mean2, r_variance;
+	double r_mean;
+	unsigned int r_vector[size];
 
 	// double p = 2.0; // Gaussian distribution
-	int nlist[K];
+	// int nlist[K];
 
 	tip = (int)rint(log((double)size) / log(2.0));
 
@@ -1297,7 +1298,9 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	}
 
 	s0 = size * size;
+
 	for (x = 0; x < size; x++)
+	{
 		for (y = 0; y < size; y++)
 		{
 			pixel = (double)image[atx + x][aty + y];
@@ -1305,20 +1308,24 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
-
-	newclass(size, range, &isom, &clas);
-	// flips(size, range, flip_range, isom);
-	// ComputeSaupeVectors(flip_range, size, tip, r_vector);
+	}
 
 	r_mean = t0 / s0;
-	r_mean2 = t2 / s0;
-	r_variance = r_mean2 - r_mean * r_mean;
 
-	binary_knn_search(codebook[tip], num_f_vector[tip], r_variance, K, nlist);
+	newclass(size, range, &isom, &clas);
+	flips(size, range, flip_range, isom);
+	// ComputeSaupeVectors(flip_range, size, tip, r_vector);
+	ComputeBitmapVectors(flip_range, size, r_mean, r_vector);
+
+	// r_mean2 = t2 / s0;
+	// r_variance = r_mean2 - r_mean * r_mean;
+
+	// binary_knn_search(codebook[tip], num_f_vector[tip], r_variance, K, nlist);
 	// hash_table_search(p, r_vector, (double **)f_vectors[tip], num_f_vector[tip], feat_vect_dim[tip], hash_table[tip], nlist);
 	// found = kdtree_search(r_vector, f_vectors[tip], feat_vect_dim[tip], kd_tree[tip], eps, matches, nlist);
+	found = hamming_linear_search(r_vector, (unsigned int **)f_vectors[tip], num_f_vector[tip], feat_vect_dim[tip], nlist);
 
-	for (ii = 0; ii < K; ii++)
+	for (ii = 0; ii < found; ii++)
 	{
 		comparisons++;
 		counter++;

@@ -115,9 +115,9 @@ double BilinearInterpolation(double **block, int size, float target_x, float tar
     return (1 - alpha) * (1 - beta) * left_up_pixel + alpha * (1 - beta) * right_up_pixel + (1 - alpha) * beta * left_down_pixel + alpha * beta * right_down_pixel;
 }
 
-int HammingDistance(LBP num1, LBP num2)
+int HammingDistance(unsigned int num1, unsigned int num2)
 {
-    LBP num_xor = num1 ^ num2;
+    unsigned int num_xor = num1 ^ num2;
     int distance = 0;
 
     while (num_xor)

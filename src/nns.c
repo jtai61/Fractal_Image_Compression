@@ -1017,3 +1017,54 @@ void binary_knn_search(struct code_book *arr, int size, double target, int k, in
 		found++;
 	}
 }
+
+int hamming_linear_search(unsigned int *vector, unsigned int **vectors, int num_vector, int vector_dim, int *index_list)
+{
+	int i, j;
+	int distance, found = 0;
+
+	for (i = 0; i < num_vector; i++)
+	{
+		for (j = 0, distance = 0; j < vector_dim; j++)
+		{
+			distance += HammingDistance(vector[j], vectors[i][j]);
+		}
+		
+		switch (vector_dim)
+		{
+		case 2:
+			if (distance <= 1)
+			{
+				index_list[found] = i;
+				found++;
+			}
+			break;
+
+		case 4:
+			if (distance <= 4)
+			{
+				index_list[found] = i;
+				found++;
+			}
+			break;
+
+		case 8:
+			if (distance <= 8)
+			{
+				index_list[found] = i;
+				found++;
+			}
+			break;
+
+		case 16:
+			if (distance <= 16)
+			{
+				index_list[found] = i;
+				found++;
+			}
+			break;
+		}
+	}
+
+	return found;
+}

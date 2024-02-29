@@ -349,6 +349,7 @@ void ComputeAverageFactorMc();
 void ComputeFeatVectDimSaupe();
 void ComputeMcVectors(double **, double **, int, int, double *);
 void ComputeSaupeVectors(double **, int, int, float *);
+void ComputeBitmapVectors(double **, int, double, unsigned int *);
 LBP ELBP_CI(double **, int);
 LBP ELBP_NI(double **, int);
 LBP ELBP_RD(double **, int);
@@ -396,6 +397,7 @@ HashTable *build_hash_table(double, double **, int, int);
 void hash_table_search(double, double *, double **, int, int, HashTable *, int *);
 int compare_2(const void *, const void *);
 void binary_knn_search(struct code_book *, int, double, int, int *);
+int hamming_linear_search(unsigned int *, unsigned int **, int, int, int *);
 long unpack(int, FILE *);
 void read_transformations(int, int, int);
 void writeimage_pgm(char *, PIXEL **, int, int);
@@ -410,7 +412,7 @@ double calc_PSNR(char *, char *);
 double calc_SSIM(char *, char *);
 double mean(int, double **, int, int);
 double BilinearInterpolation(double **, int, float, float);
-int HammingDistance(LBP, LBP);
+int HammingDistance(unsigned int, unsigned int);
 void countingSort(int *, int);
 
 #endif
