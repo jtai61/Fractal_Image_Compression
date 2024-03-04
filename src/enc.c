@@ -115,19 +115,12 @@ int main(int argc, char **argv)
         printf(" Speed-up method: Mc-Saupe\n\n");
         break;
 
-    case Nandi:
+    case Tai:
         for (k = 0; k < 8; k++)
             for (h = 0; h < 3; h++)
-                for (i = 0; i < 24; i++)
-                    class_nandi[k][h][i] = NULL;
+                for (i = 0; i < 3; i++)
+                    class_tai[k][h][i] = NULL;
 
-        Indexing = NandiIndexing;
-        Coding = NandiCoding;
-        printf(" Speed-up method: Nandi\n\n");
-        break;
-
-    case Tai:
-        ComputeFeatVectDimSaupe();
         Indexing = TaiIndexing;
         Coding = TaiCoding;
         printf(" Speed-up method: Tai\n\n");

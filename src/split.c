@@ -83,41 +83,9 @@ double mean(int size, double **block, int atx, int aty)
     return sum / (double)(size * size);
 }
 
-double BilinearInterpolation(double **block, int size, float target_x, float target_y)
+int HammingDistance(unsigned num1, unsigned num2)
 {
-    int xFloor, yFloor;
-
-    if (size <= 2)
-    {
-        xFloor = 0;
-        yFloor = 0;
-    }
-    else
-    {
-        xFloor = (int)target_x;
-        yFloor = (int)target_y;
-    }
-
-    /* four nearest pixels */
-    double left_up_pixel, right_up_pixel, left_down_pixel, right_down_pixel;
-
-    left_up_pixel = block[xFloor][yFloor];
-    right_up_pixel = block[xFloor][yFloor + 1];
-    left_down_pixel = block[xFloor + 1][yFloor];
-    right_down_pixel = block[xFloor + 1][yFloor + 1];
-
-    /* interpolation weights */
-    float alpha, beta;
-
-    alpha = target_y - yFloor;
-    beta = target_x - xFloor;
-
-    return (1 - alpha) * (1 - beta) * left_up_pixel + alpha * (1 - beta) * right_up_pixel + (1 - alpha) * beta * left_down_pixel + alpha * beta * right_down_pixel;
-}
-
-int HammingDistance(unsigned int num1, unsigned int num2)
-{
-    unsigned int num_xor = num1 ^ num2;
+    unsigned num_xor = num1 ^ num2;
     int distance = 0;
 
     while (num_xor)

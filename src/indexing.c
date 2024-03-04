@@ -144,6 +144,24 @@ void newclass(int size, double **block, int *isom, int *clas)
     *clas = ordering[index][5];
 }
 
+void dctclass(double dct_h, double dct_v, int *clas)
+{
+    double dct_h_magnitude = fabs(dct_h), dct_v_magnitude = fabs(dct_v);
+
+    if (dct_h_magnitude < DCT_TS && dct_v_magnitude < DCT_TS)
+    {
+        *clas = 0;
+    }
+    else if (fabs(dct_h_magnitude - dct_v_magnitude) < DCT_TD)
+    {
+        *clas = 1;
+    }
+    else
+    {
+        *clas = 2;
+    }
+}
+
 void contraction(double **t, PIXEL **fun, int s_x, int s_y)
 {
     double tmp;
@@ -188,106 +206,6 @@ int ShrunkBlock(double **block, int size, int srunk_fact)
             block[i >> shift][j >> shift] = tmp / (double)(srunk_fact * srunk_fact);
         }
     return (size / srunk_fact);
-}
-
-LBP ELBP_CI(double **block, int size)
-{
-    double center_pixel;
-    double block_mean = mean(size, block, 0, 0);
-
-    if (size % 2 == 0) /* block size is even */
-        center_pixel = (block[size / 2 - 1][size / 2 - 1] + block[size / 2 - 1][size / 2] + block[size / 2][size / 2 - 1] + block[size / 2][size / 2]) / 4;
-    else /* block size is odd */
-        center_pixel = block[(size - 1) / 2][(size - 1) / 2];
-
-    return sign(center_pixel - block_mean);
-}
-
-LBP ELBP_NI(double **block, int size)
-{
-    double targets_sum = 0, targets_mean;
-    float center_x, center_y, target_x, target_y, radius;
-    int point_index, total_points;
-    LBP ni_lbp = 0;
-
-    /* center point axis */
-    center_x = (float)((size / 2) + (size / 2 - 1)) / 2;
-    center_y = center_x;
-
-    /* total number of point */
-    if (size <= 4)
-        total_points = 8;
-    else
-        total_points = 16;
-
-    /* radius size */
-    radius = (float)size / 4;
-
-    /* all target point pixel */
-    double targets[total_points];
-
-    for (point_index = 0; point_index < total_points; point_index++)
-    {
-        /* target point axis */
-        target_x = center_x - radius * sinf((TWOPI * point_index) / total_points);
-        target_y = center_y + radius * cosf((TWOPI * point_index) / total_points);
-
-        /* target point pixel */
-        targets[point_index] = BilinearInterpolation(block, size, target_x, target_y);
-
-        targets_sum += targets[point_index];
-    }
-
-    targets_mean = targets_sum / total_points;
-
-    /* calculate LBP */
-    for (point_index = 0; point_index < total_points; point_index++)
-        ni_lbp += sign(targets[point_index] - targets_mean) * pow(2, point_index);
-
-    return ni_lbp;
-}
-
-LBP ELBP_RD(double **block, int size)
-{
-    float center_x, center_y, target_1_x, target_1_y, target_2_x, target_2_y, radius_1, radius_2;
-    int point_index, total_points;
-    LBP rd_lbp = 0;
-
-    /* center point axis */
-    center_x = (float)((size / 2) + (size / 2 - 1)) / 2;
-    center_y = center_x;
-
-    /* total number of point */
-    if (size <= 4)
-        total_points = 8;
-    else
-        total_points = 16;
-
-    /* radius size */
-    radius_1 = (float)size / 6;
-    radius_2 = radius_1 * 2;
-
-    /* all target point pixel */
-    double targets_1[total_points], targets_2[total_points];
-
-    for (point_index = 0; point_index < total_points; point_index++)
-    {
-        /* target point axis */
-        target_1_x = center_x - radius_1 * sinf((TWOPI * point_index) / total_points);
-        target_1_y = center_y + radius_1 * cosf((TWOPI * point_index) / total_points);
-        target_2_x = center_x - radius_2 * sinf((TWOPI * point_index) / total_points);
-        target_2_y = center_y + radius_2 * cosf((TWOPI * point_index) / total_points);
-
-        /* target point pixel */
-        targets_1[point_index] = BilinearInterpolation(block, size, target_1_x, target_1_y);
-        targets_2[point_index] = BilinearInterpolation(block, size, target_2_x, target_2_y);
-    }
-
-    /* calculate LBP */
-    for (point_index = 0; point_index < total_points; point_index++)
-        rd_lbp += sign(targets_2[point_index] - targets_1[point_index]) * pow(2, point_index);
-
-    return rd_lbp;
 }
 
 void ComputeSaupeVectors(double **block, int size, int index, float *vector)
@@ -374,7 +292,7 @@ void ComputeMcVectors(double **block, double **block_tmp, int size, int index, d
     }
 }
 
-void ComputeBitmapVectors(double **block, int size, double mean, unsigned int *vector)
+void ComputeBitmapHistVectors(double **block, int size, double mean, double *vector)
 {
     int i, j, k;
     unsigned int sum;
@@ -792,16 +710,22 @@ out_loops:
     free(flip_domi[0]);
 }
 
-void NandiIndexing(int size, int s)
+void TaiIndexing(int size, int s)
 {
     int i, j, k, h;
     int count = 0;
-    int iso, clas, var_class;
+    int iso, clas, dct_clas;
     double sum, sum2;
     double **domi, **flip_domi;
     register double pixel;
     register int x, y;
     struct c *node;
+    double dct_h_sum, dct_v_sum;
+    double dct_h_theta1 = 0.0, dct_h_theta2;
+    double dct_v_theta1, dct_v_theta2 = 0.0;
+    double dct_h_alpha1 = sqrt(1.0 / size), dct_h_alpha2 = sqrt(2.0 / size);
+    double dct_v_alpha1 = dct_h_alpha2, dct_v_alpha2 = dct_h_alpha1;
+    double dct_h_coef, dct_v_coef;
 
     matrix_allocate(domi, size, size, double);
     matrix_allocate(flip_domi, size, size, double);
@@ -814,83 +738,8 @@ void NandiIndexing(int size, int s)
             k = 0;
             sum = 0.0;
             sum2 = 0.0;
-            for (x = 0; x < size; x++)
-                for (y = 0; y < size; y++)
-                {
-                    pixel = contract[x + (i >> 1)][y + (j >> 1)];
-                    sum += pixel;
-                    sum2 += pixel * pixel;
-                    domi[x][y] = pixel;
-                }
-
-            /* Compute the symmetry operation which brings the domain in the canonical orientation */
-            newclass(size, domi, &iso, &clas);
-
-            flips(size, domi, flip_domi, iso);
-
-            var_class = variance_class(size, flip_domi);
-
-            node = (struct c *)malloc(sizeof(struct c));
-            node->ptr_x = i;
-            node->ptr_y = j;
-            node->sum = sum;
-            node->sum2 = sum2;
-            node->iso = iso;
-            node->next = class_nandi[s][clas][var_class];
-            class_nandi[s][clas][var_class] = node;
-        }
-        printf(" Classification (Fisher) domain (%dx%d)  %d \r", size, size, count);
-        fflush(stdout);
-    }
-
-    /* Find a not empty class */
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 24; j++)
-            if (class_nandi[s][i][j] != NULL)
-                goto out_loops;
-
-out_loops:
-
-    /* Make sure no class is empty */
-    for (k = 0; k < 3; k++)
-        for (h = 0; h < 24; h++)
-            if (class_nandi[s][k][h] == NULL)
-                class_nandi[s][k][h] = class_nandi[s][i][j];
-
-    printf("\n");
-
-    free(domi[0]);
-    free(flip_domi[0]);
-}
-
-void TaiIndexing(int size, int s)
-{
-    int i, j;
-    int count = 0;
-    int cbook_size;
-    int dim_vectors;
-    int clas, iso;
-    double sum, sum2;
-    double **domi, **flip_domi;
-    register double pixel;
-    register int x, y;
-    double mean;
-
-    cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
-
-    dim_vectors = feat_vect_dim[(int)rint(log((double)(size)) / log(2.0))];
-    matrix_allocate(f_vectors[s], dim_vectors, cbook_size, float);
-    codebook[s] = (struct code_book *)malloc(cbook_size * sizeof(struct code_book));
-
-    matrix_allocate(domi, size, size, double);
-    matrix_allocate(flip_domi, size, size, double);
-
-    for (i = 0; i < image_height - 2 * size + 1; i += SHIFT)
-    {
-        for (j = 0; j < image_width - 2 * size + 1; j += SHIFT, count++)
-        {
-            sum = 0.0;
-            sum2 = 0.0;
+            dct_h_sum = 0.0;
+            dct_v_sum = 0.0;
 
             for (x = 0; x < size; x++)
             {
@@ -900,38 +749,50 @@ void TaiIndexing(int size, int s)
                     sum += pixel;
                     sum2 += pixel * pixel;
                     domi[x][y] = pixel;
+
+                    dct_h_theta2 = ((2.0 * y + 1.0) * PI) / (2.0 * size);
+                    dct_v_theta1 = ((2.0 * x + 1.0) * PI) / (2.0 * size);
+
+                    dct_h_sum += (pixel - 128.0) * cos(dct_h_theta1) * cos(dct_h_theta2);
+                    dct_v_sum += (pixel - 128.0) * cos(dct_v_theta1) * cos(dct_v_theta2);
                 }
             }
+
+            dct_h_coef = dct_h_sum * dct_h_alpha1 * dct_h_alpha2;
+            dct_v_coef = dct_v_sum * dct_v_alpha1 * dct_v_alpha2;
             
-            mean = sum / (size * size);
-
-            /* Compute the symmetry operation which brings the domain in the canonical orientation */
             newclass(size, domi, &iso, &clas);
-            flips(size, domi, flip_domi, iso);
-            // ComputeSaupeVectors(flip_domi, size, s, f_vectors[s][count]);
-            ComputeBitmapVectors(flip_domi, size, mean, (unsigned int *)f_vectors[s][count]);
+            dctclass(dct_h_coef, dct_v_coef, &dct_clas);
+            // flips(size, domi, flip_domi, iso);
 
-            // mean2 = sum2 / (size * size);
-            // variance = mean2 - mean * mean;
-
-            codebook[s][count].sum = sum;
-            codebook[s][count].sum2 = sum2;
-            codebook[s][count].ptr_x = i;
-            codebook[s][count].ptr_y = j;
-            codebook[s][count].isom = iso;
-            // codebook[s][count].var = variance;
+            node = (struct c *)malloc(sizeof(struct c));
+            node->ptr_x = i;
+            node->ptr_y = j;
+            node->sum = sum;
+            node->sum2 = sum2;
+            node->iso = iso;
+            node->next = class_tai[s][clas][dct_clas];
+            class_tai[s][clas][dct_clas] = node;
         }
-        printf(" Building codebook of domain (%dx%d)  %d \r", size, size, count);
+        printf(" Classification (Tai) domain (%dx%d)  %d \r", size, size, count);
         fflush(stdout);
     }
-    num_f_vector[s] = count;
-    printf("\n Sorting codebook by variance... ");
-    fflush(stdout);
-    // qsort(codebook[s], num_f_vector[s], sizeof(struct code_book), compare_2);
-    // hash_table[s] = build_hash_table(p, (double **)f_vectors[s], num_f_vector[s], dim_vectors);
-    // kd_tree[s] = kdtree_build(f_vectors[s], count - 1, dim_vectors);
-    printf("Done\n");
-    fflush(stdout);
+
+    /* Find a not empty class */
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 3; j++)
+            if (class_tai[s][i][j] != NULL)
+                goto out_loops;
+
+out_loops:
+
+    /* Make sure no class is empty */
+    for (k = 0; k < 3; k++)
+        for (h = 0; h < 3; h++)
+            if (class_tai[s][k][h] == NULL)
+                class_tai[s][k][h] = class_tai[s][i][j];
+
+    printf("\n");
 
     free(domi[0]);
     free(flip_domi[0]);

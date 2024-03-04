@@ -1081,11 +1081,11 @@ double SaupeCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 	return (min);
 }
 
-double NandiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qalf, int *qbet)
+double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qalf, int *qbet)
 {
 	int x, y, qalfa, qbeta, i, j;
 	int tip, counter, isometry;
-	int isom, clas, var_class;
+	int isom, clas, dct_clas;
 	int start_first, end_first, fisher_first;
 	int start_second, end_second, fisher_second;
 	double dist, alfa, beta;
@@ -1099,6 +1099,12 @@ double NandiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 	double s2 = 0.0;
 	register double pixel;
 	struct c *pointer;
+    double dct_h_sum = 0.0, dct_v_sum = 0.0;
+    double dct_h_theta1 = 0.0, dct_h_theta2;
+    double dct_v_theta1, dct_v_theta2 = 0.0;
+    double dct_h_alpha1 = sqrt(1.0 / size), dct_h_alpha2 = sqrt(2.0 / size);
+    double dct_v_alpha1 = dct_h_alpha2, dct_v_alpha2 = dct_h_alpha1;
+    double dct_h_coef, dct_v_coef;
 
 	tip = (int)rint((log((double)size) / log(2.0)));
 
@@ -1113,18 +1119,30 @@ double NandiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 	}
 
 	s0 = size * size;
+	
 	for (x = 0; x < size; x++)
+	{
 		for (y = 0; y < size; y++)
 		{
 			pixel = (double)image[atx + x][aty + y];
 			t0 += pixel;
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
+
+			dct_h_theta2 = ((2.0 * y + 1.0) * PI) / (2.0 * size);
+			dct_v_theta1 = ((2.0 * x + 1.0) * PI) / (2.0 * size);
+
+			dct_h_sum += (pixel - 128.0) * cos(dct_h_theta1) * cos(dct_h_theta2);
+			dct_v_sum += (pixel - 128.0) * cos(dct_v_theta1) * cos(dct_v_theta2);			
 		}
+	}
+
+	dct_h_coef = dct_h_sum * dct_h_alpha1 * dct_h_alpha2;
+	dct_v_coef = dct_v_sum * dct_v_alpha1 * dct_v_alpha2;
 
 	newclass(size, range, &isom, &clas);
-	flips(size, range, flip_range, isom);
-	var_class = variance_class(size, flip_range);
+	dctclass(dct_h_coef, dct_v_coef, &dct_clas);
+	// flips(size, range, flip_range, isom);
 
 	if (full_first_class)
 	{
@@ -1140,18 +1158,18 @@ double NandiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 	if (full_second_class)
 	{
 		start_second = 0;
-		end_second = 24;
+		end_second = 3;
 	}
 	else
 	{
-		start_second = var_class;
-		end_second = var_class + 1;
+		start_second = dct_clas;
+		end_second = dct_clas + 1;
 	}
 
 	for (fisher_first = start_first; fisher_first < end_first; fisher_first++)
 		for (fisher_second = start_second; fisher_second < end_second; fisher_second++)
 		{
-			pointer = class_nandi[tip][fisher_first][fisher_second];
+			pointer = class_tai[tip][fisher_first][fisher_second];
 			while (pointer != NULL)
 			{
 				isometry = mapping[isom][pointer->iso];
@@ -1259,177 +1277,6 @@ double NandiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 				pointer = pointer->next;
 			}
 		}
-	return (min);
-}
-
-double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qalf, int *qbet)
-{
-	int x, y, qalfa, qbeta, i, j;
-	int tip, ii, found, counter;
-	int isometry, isom, clas;
-	double dist, alfa, beta;
-	double min = 1000000000.0;
-	double sum, s0;
-	double det;
-	double t0 = 0.0;
-	double t1 = 0.0;
-	double t2 = 0.0;
-	double s1 = 0.0;
-	double s2 = 0.0;
-	// static float r_vector[4096];
-	static int nlist[MAX_NEIGHBOURS];
-	register double pixel;
-	double r_mean;
-	unsigned int r_vector[size];
-
-	// double p = 2.0; // Gaussian distribution
-	// int nlist[K];
-
-	tip = (int)rint(log((double)size) / log(2.0));
-
-	if (tip == 0)
-	{ /* size = 1 */
-		*qbet = (int)image[atx][aty];
-		*qalf = zeroalfa;
-		*xd = 0;
-		*yd = 0;
-		*is = IDENTITY;
-		return 0.0;
-	}
-
-	s0 = size * size;
-
-	for (x = 0; x < size; x++)
-	{
-		for (y = 0; y < size; y++)
-		{
-			pixel = (double)image[atx + x][aty + y];
-			t0 += pixel;
-			t2 += pixel * pixel;
-			range[x][y] = pixel;
-		}
-	}
-
-	r_mean = t0 / s0;
-
-	newclass(size, range, &isom, &clas);
-	flips(size, range, flip_range, isom);
-	// ComputeSaupeVectors(flip_range, size, tip, r_vector);
-	ComputeBitmapVectors(flip_range, size, r_mean, r_vector);
-
-	// r_mean2 = t2 / s0;
-	// r_variance = r_mean2 - r_mean * r_mean;
-
-	// binary_knn_search(codebook[tip], num_f_vector[tip], r_variance, K, nlist);
-	// hash_table_search(p, r_vector, (double **)f_vectors[tip], num_f_vector[tip], feat_vect_dim[tip], hash_table[tip], nlist);
-	// found = kdtree_search(r_vector, f_vectors[tip], feat_vect_dim[tip], kd_tree[tip], eps, matches, nlist);
-	found = hamming_linear_search(r_vector, (unsigned int **)f_vectors[tip], num_f_vector[tip], feat_vect_dim[tip], nlist);
-
-	for (ii = 0; ii < found; ii++)
-	{
-		comparisons++;
-		counter++;
-		isometry = mapping[isom][codebook[tip][nlist[ii]].isom];
-		s1 = codebook[tip][nlist[ii]].sum;
-		s2 = codebook[tip][nlist[ii]].sum2;
-		t1 = 0.0;
-		i = codebook[tip][nlist[ii]].ptr_x >> 1;
-		j = codebook[tip][nlist[ii]].ptr_y >> 1;
-
-		switch (isometry)
-		{
-		case IDENTITY:
-			for (x = 0; x < size; x++)
-				for (y = 0; y < size; y++)
-					t1 += contract[x + i][y + j] * range[x][y];
-			break;
-		case R_ROTATE90:
-			for (x = 0; x < size; x++)
-				for (y = 0; y < size; y++)
-					t1 += contract[x + i][y + j] * range[y][size - x - 1];
-			break;
-		case L_ROTATE90:
-			for (x = 0; x < size; x++)
-				for (y = 0; y < size; y++)
-					t1 += contract[x + i][y + j] * range[size - y - 1][x];
-			break;
-		case ROTATE180:
-			for (x = 0; x < size; x++)
-				for (y = 0; y < size; y++)
-					t1 += contract[x + i][y + j] * range[size - x - 1][size - y - 1];
-			break;
-		case R_VERTICAL:
-			for (x = 0; x < size; x++)
-				for (y = 0; y < size; y++)
-					t1 += contract[x + i][y + j] * range[x][size - y - 1];
-			break;
-		case R_HORIZONTAL:
-			for (x = 0; x < size; x++)
-				for (y = 0; y < size; y++)
-					t1 += contract[x + i][y + j] * range[size - x - 1][y];
-			break;
-		case F_DIAGONAL:
-			for (x = 0; x < size; x++)
-				for (y = 0; y < size; y++)
-					t1 += contract[x + i][y + j] * range[y][x];
-			break;
-		case S_DIAGONAL:
-			for (x = 0; x < size; x++)
-				for (y = 0; y < size; y++)
-					t1 += contract[x + i][y + j] * range[size - y - 1][size - x - 1];
-			break;
-		}
-
-		/* Compute the scalig factor */
-		det = s2 * s0 - s1 * s1;
-		if (det == 0.0)
-			alfa = 0.0;
-		else
-			alfa = (s0 * t1 - s1 * t0) / det;
-		if (alfa < 0.0)
-			alfa = 0.0;
-
-		/* Quantize the scalig factor */
-		qalfa = 0.5 + (alfa) / (MAX_ALFA) * (1 << N_BITALFA);
-		if (qalfa < 0)
-			qalfa = 0;
-		if (qalfa >= (1 << N_BITALFA))
-			qalfa = (1 << N_BITALFA) - 1;
-
-		/* Compute the scalig factor back from the quantized value */
-		alfa = (double)qalfa / (double)(1 << N_BITALFA) * (MAX_ALFA);
-
-		/* Compute the offset */
-		beta = (t0 - alfa * s1) / s0;
-		if (alfa > 0.0)
-			beta += alfa * 255;
-
-		/* Quantize the offset */
-		qbeta = 0.5 + beta / ((1.0 + fabs(alfa)) * 255) * ((1 << N_BITBETA) - 1);
-		if (qbeta < 0)
-			qbeta = 0;
-		if (qbeta >= 1 << N_BITBETA)
-			qbeta = (1 << N_BITBETA) - 1;
-
-		/* Compute the offset back from the quantized value */
-		beta = (double)qbeta / (double)((1 << N_BITBETA) - 1) * ((1.0 + fabs(alfa)) * 255);
-		if (alfa > 0.0)
-			beta -= alfa * 255;
-
-		/* Compute the rms distance */
-		sum = t2 - 2 * alfa * t1 - 2 * beta * t0 + alfa * alfa * s2 + 2 * alfa * beta * s1 + s0 * beta * beta;
-		dist = sqrt(sum / s0);
-
-		if (dist < min)
-		{
-			min = dist;
-			*xd = codebook[tip][nlist[ii]].ptr_x;
-			*yd = codebook[tip][nlist[ii]].ptr_y;
-			*is = isometry;
-			*qalf = qalfa;
-			*qbet = qbeta;
-		}
-	}
 	return (min);
 }
 
