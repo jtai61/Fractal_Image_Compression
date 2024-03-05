@@ -116,13 +116,17 @@ int main(int argc, char **argv)
         break;
 
     case Tai:
-        for (k = 0; k < 8; k++)
-            for (h = 0; h < 3; h++)
-                for (i = 0; i < 3; i++)
-                    class_tai[k][h][i] = NULL;
+        // for (k = 0; k < 8; k++)
+        //     for (h = 0; h < 3; h++)
+        //         for (i = 0; i < 3; i++)
+        //             class_tai[k][h][i] = NULL;
+
+        // Indexing = TaiIndexing2;
+        // Coding = TaiCoding2;
 
         Indexing = TaiIndexing;
         Coding = TaiCoding;
+
         printf(" Speed-up method: Tai\n\n");
         break;
     }
