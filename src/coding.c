@@ -1084,7 +1084,7 @@ double SaupeCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qalf, int *qbet)
 {
 	int x, y, qalfa, qbeta, i, j;
-	int tip, ii, found, counter, isom;
+	int tip, ii, found, counter, isom, clas;
 	double dist, alfa, beta;
 	double min = 1000000000.0;
 	double sum, s0, det;
@@ -1096,6 +1096,13 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	static float r_vector[4096];
 	static int nlist[MAX_NEIGHBOURS];
 	register double pixel;
+    double pixel_min, pixel_max;
+    double dct_h_sum, dct_v_sum;
+    double dct_h_theta1 = 0.0, dct_h_theta2;
+    double dct_v_theta1, dct_v_theta2 = 0.0;
+    double dct_h_alpha1 = sqrt(1.0 / size), dct_h_alpha2 = sqrt(2.0 / size);
+    double dct_v_alpha1 = dct_h_alpha2, dct_v_alpha2 = dct_h_alpha1;
+    double dct_h_coef, dct_v_coef;
 
 	tip = (int)rint(log((double)size) / log(2.0));
 
@@ -1110,14 +1117,42 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	}
 
 	s0 = size * size;
+	dct_h_sum = 0.0;
+	dct_v_sum = 0.0;
+	pixel_min = 255.0;
+	pixel_max = 0.0;
+
 	for (x = 0; x < size; x++)
+	{
 		for (y = 0; y < size; y++)
 		{
 			pixel = (double)image[atx + x][aty + y];
 			t0 += pixel;
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
+
+			if (pixel < pixel_min)
+			{
+				pixel_min = pixel;
+			}
+			
+			if (pixel > pixel_max)
+			{
+				pixel_max = pixel;
+			}
+
+			dct_h_theta2 = ((2.0 * y + 1.0) * PI) / (2.0 * size);
+			dct_v_theta1 = ((2.0 * x + 1.0) * PI) / (2.0 * size);
+
+			dct_h_sum += (pixel - 128.0) * cos(dct_h_theta1) * cos(dct_h_theta2);
+			dct_v_sum += (pixel - 128.0) * cos(dct_v_theta1) * cos(dct_v_theta2);
 		}
+	}
+	
+	dct_h_coef = dct_h_sum * dct_h_alpha1 * dct_h_alpha2;
+	dct_v_coef = dct_v_sum * dct_v_alpha1 * dct_v_alpha2;
+
+	dctclass(dct_h_coef, dct_v_coef, &clas);
 
 	for (isom = IDENTITY; isom <= S_DIAGONAL; isom++)
 	{

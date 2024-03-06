@@ -194,8 +194,11 @@ EXTERN struct code_book ***c_book[8];
 EXTERN float ****f_vect[8];
 
 EXTERN struct code_book *codebook[8];
+EXTERN struct code_book *codebook_v2[8][3];
 EXTERN float **f_vectors[8];
+EXTERN float **f_vectors_v2[8][3];
 EXTERN kdtree *kd_tree[8];
+EXTERN kdtree *kd_tree_v2[8][3];
 EXTERN int feat_vect_dim[8];
 EXTERN int average_factor[8];
 
