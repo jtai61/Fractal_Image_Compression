@@ -295,11 +295,12 @@ void ComputeMcVectors(double **block, double **block_tmp, int size, int index, d
 void ComputeBitmapHistVectors(double **block, int size, double max, double min, float *vector)
 {
     int i, j;
+    float size2 = (float)(size * size);
     double TH = 3 * max + min, TL = max + 3 * min;
     double TH_sum = 0.0, TL_sum = 0.0;
     int n = 0, m = 0;
     double MY, DY, T1, T2, T3;
-    int count_0 = 0, count_1 = 0, count_2 = 0, count_3 = 0;
+    static int hist_count[VECTOR_DIM];
 
     /* 4-level bitmap threshold */
 
@@ -312,7 +313,7 @@ void ComputeBitmapHistVectors(double **block, int size, double max, double min, 
                 TH_sum += block[i][j];
                 n++;
             }
-            if (block[i][j] <= TL)
+            else if (block[i][j] <= TL)
             {
                 TL_sum += block[i][j];
                 m++;
@@ -338,27 +339,27 @@ void ComputeBitmapHistVectors(double **block, int size, double max, double min, 
         {
             if (block[i][j] >= T3)
             {
-                count_3++;
+                hist_count[3]++;
             }
             else if (block[i][j] >= T2)
             {
-                count_2++;
+                hist_count[2]++;
             }
             else if (block[i][j] >= T1)
             {
-                count_1++;
+                hist_count[1]++;
             }
             else
             {
-                count_0++;
+                hist_count[0]++;
             }
         }
     }
 
-    vector[0] = count_0 / (float)(size * size);
-    vector[1] = count_1 / (float)(size * size);
-    vector[2] = count_2 / (float)(size * size);
-    vector[3] = count_3 / (float)(size * size);
+    for (i = 0; i < VECTOR_DIM; i++)
+    {
+        vector[i] = hist_count[i] / size2;
+    }
 }
 
 void Saupe_FisherIndexing(int size, int s)
@@ -764,9 +765,8 @@ out_loops:
 void TaiIndexing(int size, int s)
 {
     int i, j;
-    int cbook_size;
-    int dim_vectors = 4, clas;
-    static int clas_count[3];
+    int cbook_size, clas;
+    static int clas_count[CLASS_NUM];
     double sum, sum2;
     double **domi;
     register double pixel;
@@ -781,9 +781,9 @@ void TaiIndexing(int size, int s)
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
 
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < CLASS_NUM; i++)
     {
-        matrix_allocate(f_vectors_v2[s][i], dim_vectors, cbook_size, float);
+        matrix_allocate(f_vectors_v2[s][i], VECTOR_DIM, cbook_size, float);
         codebook_v2[s][i] = (struct code_book *)malloc(cbook_size * sizeof(struct code_book));
     }
 
@@ -841,19 +841,19 @@ void TaiIndexing(int size, int s)
 
             clas_count[clas]++;
         }
-        printf(" Extracting [%d] features (Tai) domain (%dx%d) class_0 %d \r", dim_vectors, size, size, clas_count[0]);
+        printf(" Extracting [%d] features (Tai) domain (%dx%d) class_0 %d \r", VECTOR_DIM, size, size, clas_count[0]);
         fflush(stdout);
-        printf(" Extracting [%d] features (Tai) domain (%dx%d) class_1 %d \r", dim_vectors, size, size, clas_count[1]);
+        printf(" Extracting [%d] features (Tai) domain (%dx%d) class_1 %d \r", VECTOR_DIM, size, size, clas_count[1]);
         fflush(stdout);
-        printf(" Extracting [%d] features (Tai) domain (%dx%d) class_2 %d \r", dim_vectors, size, size, clas_count[2]);
+        printf(" Extracting [%d] features (Tai) domain (%dx%d) class_2 %d \r", VECTOR_DIM, size, size, clas_count[2]);
         fflush(stdout);
     }
 
-    for (clas = 0; clas < 3; clas++)
+    for (i = 0; i < CLASS_NUM; i++)
     {
-        printf("\n Building class_%d Kd-tree... ", clas);
+        printf("\n Building class_%d Kd-tree... ", i);
         fflush(stdout);
-        kd_tree_v2[s][clas] = kdtree_build(f_vectors_v2[s][clas], clas_count[clas], dim_vectors);
+        kd_tree_v2[s][i] = kdtree_build(f_vectors_v2[s][i], clas_count[i], VECTOR_DIM);
         printf("Done\n");
         fflush(stdout);
     }

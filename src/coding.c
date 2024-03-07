@@ -1093,7 +1093,7 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	double t2 = 0.0;
 	double s1 = 0.0;
 	double s2 = 0.0;
-	static float r_vector[4096];
+	static float r_vector[VECTOR_DIM];
 	static int nlist[MAX_NEIGHBOURS];
 	register double pixel;
     double pixel_min, pixel_max;
@@ -1153,35 +1153,22 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	dct_v_coef = dct_v_sum * dct_v_alpha1 * dct_v_alpha2;
 
 	dctclass(dct_h_coef, dct_v_coef, &clas);
+    
+	ComputeBitmapHistVectors(range, size, pixel_max, pixel_min, r_vector);
+
+	found = kdtree_search(r_vector, f_vectors_v2[tip][clas], VECTOR_DIM, kd_tree_v2[tip][clas], eps, matches, nlist);
 
 	for (isom = IDENTITY; isom <= S_DIAGONAL; isom++)
 	{
-		switch (isom)
-		{
-		case L_ROTATE90:
-			flips(size, range, flip_range, R_ROTATE90);
-			break;
-		case R_ROTATE90:
-			flips(size, range, flip_range, L_ROTATE90);
-			break;
-		default:
-			flips(size, range, flip_range, isom);
-			break;
-		}
-
-		ComputeSaupeVectors(flip_range, size, tip, r_vector);
-
-		found = kdtree_search(r_vector, f_vectors[tip], feat_vect_dim[tip], kd_tree[tip], eps, matches, nlist);
-
 		for (ii = 0; ii < found; ii++)
 		{
 			comparisons++;
 			counter++;
-			s1 = codebook[tip][nlist[ii]].sum;
-			s2 = codebook[tip][nlist[ii]].sum2;
+			s1 = codebook_v2[tip][clas][nlist[ii]].sum;
+			s2 = codebook_v2[tip][clas][nlist[ii]].sum2;
 			t1 = 0.0;
-			i = codebook[tip][nlist[ii]].ptr_x >> 1;
-			j = codebook[tip][nlist[ii]].ptr_y >> 1;
+			i = codebook_v2[tip][clas][nlist[ii]].ptr_x >> 1;
+			j = codebook_v2[tip][clas][nlist[ii]].ptr_y >> 1;
 
 			switch (isom)
 			{
@@ -1270,8 +1257,8 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 			if (dist < min)
 			{
 				min = dist;
-				*xd = codebook[tip][nlist[ii]].ptr_x;
-				*yd = codebook[tip][nlist[ii]].ptr_y;
+				*xd = codebook_v2[tip][clas][nlist[ii]].ptr_x;
+				*yd = codebook_v2[tip][clas][nlist[ii]].ptr_y;
 				*is = isom;
 				*qalf = qalfa;
 				*qbet = qbeta;

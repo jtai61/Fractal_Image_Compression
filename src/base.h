@@ -40,6 +40,8 @@
 #define PI 				3.1415926
 #define DCT_TS			41
 #define DCT_TD			75
+#define CLASS_NUM		3
+#define VECTOR_DIM		4
 
 /* function define */
 
@@ -194,11 +196,11 @@ EXTERN struct code_book ***c_book[8];
 EXTERN float ****f_vect[8];
 
 EXTERN struct code_book *codebook[8];
-EXTERN struct code_book *codebook_v2[8][3];
+EXTERN struct code_book *codebook_v2[8][CLASS_NUM];
 EXTERN float **f_vectors[8];
-EXTERN float **f_vectors_v2[8][3];
+EXTERN float **f_vectors_v2[8][CLASS_NUM];
 EXTERN kdtree *kd_tree[8];
-EXTERN kdtree *kd_tree_v2[8][3];
+EXTERN kdtree *kd_tree_v2[8][CLASS_NUM];
 EXTERN int feat_vect_dim[8];
 EXTERN int average_factor[8];
 
