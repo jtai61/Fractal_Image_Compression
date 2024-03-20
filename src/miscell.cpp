@@ -1,6 +1,6 @@
 #include "base.h"
 
-void fatal(char *s)
+void fatal(const char *s)
 {
 	printf("%s\n", s);
 	exit(-1);

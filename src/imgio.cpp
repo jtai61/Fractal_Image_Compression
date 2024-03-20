@@ -1,6 +1,6 @@
 #include "base.h"
 
-void writeimage_pgm(char *nome, PIXEL **imag, int width, int height)
+void writeimage_pgm(const char *nome, PIXEL **imag, int width, int height)
 {
 	FILE *out;
 	int i, j;
@@ -19,7 +19,7 @@ void writeimage_pgm(char *nome, PIXEL **imag, int width, int height)
 	printf("done\n");
 }
 
-void writeimage_raw(char *nome, PIXEL **imag, int width, int height)
+void writeimage_raw(const char *nome, PIXEL **imag, int width, int height)
 {
 	FILE *out;
 	int i, j;

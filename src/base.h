@@ -3,16 +3,16 @@
 
 /* standard library */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-#include <math.h>
-#include <float.h>
-#include <time.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <climits>
+#include <cmath>
+#include <cfloat>
+#include <ctime>
 #include <unistd.h>
-#include <ctype.h>
-#include <assert.h>
+#include <cctype>
+#include <cassert>
 
 /* constant define */
 
@@ -38,10 +38,6 @@
 #define HEAPMAX 		10000
 #define TWOPI 			6.2831853
 #define PI 				3.1415926
-#define DCT_TS			41
-#define DCT_TD			75
-#define CLASS_NUM		3
-#define VECTOR_DIM		4
 
 /* function define */
 
@@ -187,7 +183,6 @@ EXTERN PIXEL **image1;
 
 EXTERN struct c ***class_polar[8];
 EXTERN struct c *class_fisher[8][3][24];
-EXTERN struct c *class_tai[8][3][3];
 EXTERN struct c *class_hurtgen[8][16][24];
 
 EXTERN kdtree ***class_polar_saupe[8];
@@ -196,13 +191,12 @@ EXTERN struct code_book ***c_book[8];
 EXTERN float ****f_vect[8];
 
 EXTERN struct code_book *codebook[8];
-EXTERN struct code_book *codebook_v2[8][CLASS_NUM];
+EXTERN struct code_book *codebook_v2[8][3];
 EXTERN float **f_vectors[8];
-EXTERN float **f_vectors_v2[8][CLASS_NUM];
 EXTERN kdtree *kd_tree[8];
-EXTERN kdtree *kd_tree_v2[8][CLASS_NUM];
 EXTERN int feat_vect_dim[8];
 EXTERN int average_factor[8];
+EXTERN int clas_count[8][3];
 
 EXTERN clock_t start_clock;
 EXTERN clock_t end_clock;
@@ -254,8 +248,8 @@ EXTERN double **contract;
 EXTERN double **range;
 EXTERN double **range_tmp;
 EXTERN double **flip_range;
-EXTERN double (*Coding)();
-EXTERN void (*Indexing)();
+EXTERN double (*Coding)(int, int, int, int *, int *, int *, int *, int *);
+EXTERN void (*Indexing)(int, int);
 EXTERN int method INIT(= MassCenter);
 
 /* function prototype */
@@ -267,7 +261,6 @@ double Mc_SaupeCoding(int, int, int, int *, int *, int *, int *, int *);
 double MassCenterCoding(int, int, int, int *, int *, int *, int *, int *);
 double Saupe_FisherCoding(int, int, int, int *, int *, int *, int *, int *);
 double TaiCoding(int, int, int, int *, int *, int *, int *, int *);
-double TaiCoding2(int, int, int, int *, int *, int *, int *, int *);
 double entropy(int, int, int, int);
 double variance(int, int, int, int);
 double variance_2(int, double **, int, int);
@@ -278,7 +271,6 @@ void ComputeAverageFactorMc();
 void ComputeFeatVectDimSaupe();
 void ComputeMcVectors(double **, double **, int, int, double *);
 void ComputeSaupeVectors(double **, int, int, float *);
-void ComputeBitmapHistVectors(double **, int, double, double, float *);
 void FisherIndexing(int, int);
 void HurtgenIndexing(int, int);
 void MassCenterIndexing(int, int);
@@ -286,13 +278,11 @@ void SaupeIndexing(int, int);
 void Mc_SaupeIndexing(int, int);
 void Saupe_FisherIndexing(int, int);
 void TaiIndexing(int, int);
-void TaiIndexing2(int, int);
 void contraction(double **, PIXEL **, int, int);
-void fatal(char *);
+void fatal(const char *);
 void flips(int, double **, double **, int);
 void ComputeMc(double **, int, double *, double *, int);
 void newclass(int, double **, int *, int *);
-void dctclass(double, double, int *);
 void getopt_enc(int, char **);
 void getopt_dec(int, char **);
 void quadtree(int, int, int, double, double, double);
@@ -306,8 +296,8 @@ int compare_2(const void *, const void *);
 void binary_knn_search(struct code_book *, int, double, int, int *);
 long unpack(int, FILE *);
 void read_transformations(int, int, int);
-void writeimage_pgm(char *, PIXEL **, int, int);
-void writeimage_raw(char *, PIXEL **, int, int);
+void writeimage_pgm(const char *, PIXEL **, int, int);
+void writeimage_raw(const char *, PIXEL **, int, int);
 void writeimage_pipe(FILE *, PIXEL **, int, int);
 void smooth_image();
 void zooming(double);

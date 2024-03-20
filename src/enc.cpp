@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 
     getopt_enc(argc, argv);
 
-    pp = "";
+    pp = (char *)"";
     p = filein;
     while (*p)
     { /* Find the last dot in the file name */
@@ -116,24 +116,13 @@ int main(int argc, char **argv)
         break;
 
     case Tai:
-        // for (k = 0; k < 8; k++)
-        //     for (h = 0; h < 3; h++)
-        //         for (i = 0; i < 3; i++)
-        //             class_tai[k][h][i] = NULL;
-
-        // Indexing = TaiIndexing2;
-        // Coding = TaiCoding2;
-
         Indexing = TaiIndexing;
         Coding = TaiCoding;
-
         printf(" Speed-up method: Tai\n\n");
         break;
     }
 
     contraction(contract, image, 0, 0);
-
-    // srand(time(NULL));
 
     start_clock = clock();
 

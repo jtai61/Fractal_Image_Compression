@@ -204,8 +204,8 @@ void read_transformations(int atx, int aty, int size)
 void iterative_decoding(int level, int n_iter, double zoo)
 {
 	int rx, ry, rrx, rry, dx, dy;
-	register int i, j, ii, jj, s;
-	register PIXEL **imag, **imag1;
+	int i, j, ii, jj, s;
+	PIXEL **imag, **imag1;
 	double pixel;
 	double z_factor;
 	int width, height;
@@ -321,8 +321,8 @@ void iterative_decoding(int level, int n_iter, double zoo)
 void piramidal_decoding(int level)
 {
 	int rx, ry, rrx, rry, dx, dy;
-	register int i, j, ii, jj;
-	register PIXEL **imag, **imag1;
+	int i, j, ii, jj;
+	PIXEL **imag, **imag1;
 	double pixel;
 
 	if (level < 1)

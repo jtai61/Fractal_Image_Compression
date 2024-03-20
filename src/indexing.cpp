@@ -7,7 +7,7 @@ void ComputeMc(double **block, int size, double *x, double *y, int s)
     double a = 0.0;
     double b = 0.0;
     double mass = 0.0;
-    register int i, j;
+    int i, j;
 
     for (i = 0; i < size; i++)
     {
@@ -144,24 +144,6 @@ void newclass(int size, double **block, int *isom, int *clas)
     *clas = ordering[index][5];
 }
 
-void dctclass(double dct_h, double dct_v, int *clas)
-{
-    double dct_h_magnitude = fabs(dct_h), dct_v_magnitude = fabs(dct_v);
-
-    if (dct_h_magnitude < DCT_TS && dct_v_magnitude < DCT_TS)
-    {
-        *clas = 0;
-    }
-    else if (fabs(dct_h_magnitude - dct_v_magnitude) < DCT_TD)
-    {
-        *clas = 1;
-    }
-    else
-    {
-        *clas = 2;
-    }
-}
-
 void contraction(double **t, PIXEL **fun, int s_x, int s_y)
 {
     double tmp;
@@ -213,8 +195,8 @@ void ComputeSaupeVectors(double **block, int size, int index, float *vector)
     double sum = 0.0;
     double var = 0.0;
     double s, v;
-    register int j, i;
-    register int k = 0;
+    int j, i;
+    int k = 0;
     int newsize;
 
     if (average_factor[index] > 1)
@@ -245,7 +227,7 @@ void ComputeMcVectors(double **block, double **block_tmp, int size, int index, d
     double sum = 0.0;
     double **block_1;
     double **block_2;
-    register int x, y, i;
+    int x, y, i;
     int newsize;
 
     block_1 = block;
@@ -292,76 +274,6 @@ void ComputeMcVectors(double **block, double **block_tmp, int size, int index, d
     }
 }
 
-void ComputeBitmapHistVectors(double **block, int size, double max, double min, float *vector)
-{
-    int i, j;
-    float size2 = (float)(size * size);
-    double TH = 3 * max + min, TL = max + 3 * min;
-    double TH_sum = 0.0, TL_sum = 0.0;
-    int n = 0, m = 0;
-    double MY, DY, T1, T2, T3;
-    static int hist_count[VECTOR_DIM];
-
-    /* 4-level bitmap threshold */
-
-    for (i = 0; i < size; i++)
-    {
-        for (j = 0; j < size; j++)
-        {
-            if (block[i][j] >= TH)
-            {
-                TH_sum += block[i][j];
-                n++;
-            }
-            else if (block[i][j] <= TL)
-            {
-                TL_sum += block[i][j];
-                m++;
-            }
-        }
-    }
-
-    TH_sum /= n;
-    TL_sum /= m;
-
-    MY = (TH_sum + TL_sum) / 2;
-    DY = TH_sum - TL_sum;
-
-    T1 = MY - (DY / 3);
-    T2 = MY;
-    T3 = MY + (DY / 3);
-
-    /* histogram feature vector */
-
-    for (i = 0; i < size; i++)
-    {
-        for (j = 0; j < size; j++)
-        {
-            if (block[i][j] >= T3)
-            {
-                hist_count[3]++;
-            }
-            else if (block[i][j] >= T2)
-            {
-                hist_count[2]++;
-            }
-            else if (block[i][j] >= T1)
-            {
-                hist_count[1]++;
-            }
-            else
-            {
-                hist_count[0]++;
-            }
-        }
-    }
-
-    for (i = 0; i < VECTOR_DIM; i++)
-    {
-        vector[i] = hist_count[i] / size2;
-    }
-}
-
 void Saupe_FisherIndexing(int size, int s)
 {
     int i, j;
@@ -371,8 +283,8 @@ void Saupe_FisherIndexing(int size, int s)
     int clas, iso;
     double sum, sum2;
     double **dom_tmp, **domi, **flip_domi;
-    register double pixel;
-    register int x, y;
+    double pixel;
+    int x, y;
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
 
@@ -437,8 +349,8 @@ void MassCenterIndexing(int size, int s)
     double vector[16];
 
     double **dom_tmp, **domi, **flip_domi;
-    register double pixel;
-    register int x, y;
+    double pixel;
+    int x, y;
 
     matrix_allocate(domi, size, size, double);
     matrix_allocate(dom_tmp, size, size, double);
@@ -494,8 +406,8 @@ void Mc_SaupeIndexing(int size, int s)
     double sum, sum2;
     double vector[16];
     double **dom_tmp, **domi, **flip_domi;
-    register double pixel;
-    register int x, y;
+    double pixel;
+    int x, y;
 
     matrix_allocate(domi, size, size, double);
     matrix_allocate(dom_tmp, size, size, double);
@@ -582,8 +494,8 @@ void SaupeIndexing(int size, int s)
     int dim_vectors;
     double sum, sum2;
     double **dom_tmp, **domi;
-    register double pixel;
-    register int x, y;
+    double pixel;
+    int x, y;
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
     dim_vectors = feat_vect_dim[(int)rint(log((double)size) / log(2.0))];
@@ -635,8 +547,8 @@ void HurtgenIndexing(int size, int s)
     int m_class_1, m_class_2;
     double sum, sum2;
     double **domi;
-    register double pixel;
-    register int x, y;
+    double pixel;
+    int x, y;
     struct c *node;
 
     matrix_allocate(domi, size, size, double);
@@ -698,8 +610,8 @@ void FisherIndexing(int size, int s)
     int iso, clas, var_class;
     double sum, sum2;
     double **domi, **flip_domi;
-    register double pixel;
-    register int x, y;
+    double pixel;
+    int x, y;
     struct c *node;
 
     matrix_allocate(domi, size, size, double);
@@ -764,27 +676,18 @@ out_loops:
 
 void TaiIndexing(int size, int s)
 {
-    int i, j;
-    int cbook_size, clas;
-    static int clas_count[CLASS_NUM];
+    int i, j, x, y;
+    int cbook_size, clas, iso;
     double sum, sum2;
     double **domi;
-    register double pixel;
-    register int x, y;
-    double pixel_min, pixel_max;
-    double dct_h_sum, dct_v_sum;
-    double dct_h_theta1 = 0.0, dct_h_theta2;
-    double dct_v_theta1, dct_v_theta2 = 0.0;
-    double dct_h_alpha1 = sqrt(1.0 / size), dct_h_alpha2 = sqrt(2.0 / size);
-    double dct_v_alpha1 = dct_h_alpha2, dct_v_alpha2 = dct_h_alpha1;
-    double dct_h_coef, dct_v_coef;
+    double pixel;
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
 
-    for (i = 0; i < CLASS_NUM; i++)
+    for (i = 0; i < 3; i++)
     {
-        matrix_allocate(f_vectors_v2[s][i], VECTOR_DIM, cbook_size, float);
         codebook_v2[s][i] = (struct code_book *)malloc(cbook_size * sizeof(struct code_book));
+        clas_count[s][i] = 0;
     }
 
     matrix_allocate(domi, size, size, double);
@@ -795,10 +698,6 @@ void TaiIndexing(int size, int s)
         {
             sum = 0.0;
             sum2 = 0.0;
-            dct_h_sum = 0.0;
-            dct_v_sum = 0.0;
-            pixel_min = 255.0;
-            pixel_max = 0.0;
 
             for (x = 0; x < size; x++)
             {
@@ -808,145 +707,37 @@ void TaiIndexing(int size, int s)
                     sum += pixel;
                     sum2 += pixel * pixel;
                     domi[x][y] = pixel;
-
-                    if (pixel < pixel_min)
-                    {
-                        pixel_min = pixel;
-                    }
-
-                    if (pixel > pixel_max)
-                    {
-                        pixel_max = pixel;
-                    }
-
-                    dct_h_theta2 = ((2.0 * y + 1.0) * PI) / (2.0 * size);
-                    dct_v_theta1 = ((2.0 * x + 1.0) * PI) / (2.0 * size);
-
-                    dct_h_sum += (pixel - 128.0) * cos(dct_h_theta1) * cos(dct_h_theta2);
-                    dct_v_sum += (pixel - 128.0) * cos(dct_v_theta1) * cos(dct_v_theta2);
                 }
             }
-
-            dct_h_coef = dct_h_sum * dct_h_alpha1 * dct_h_alpha2;
-            dct_v_coef = dct_v_sum * dct_v_alpha1 * dct_v_alpha2;
-
-            dctclass(dct_h_coef, dct_v_coef, &clas);
-
-            ComputeBitmapHistVectors(domi, size, pixel_max, pixel_min, f_vectors_v2[s][clas][clas_count[clas]]);
-
-            codebook_v2[s][clas][clas_count[clas]].sum = sum;
-            codebook_v2[s][clas][clas_count[clas]].sum2 = sum2;
-            codebook_v2[s][clas][clas_count[clas]].ptr_x = i;
-            codebook_v2[s][clas][clas_count[clas]].ptr_y = j;
-
-            clas_count[clas]++;
-        }
-        printf(" Extracting [%d] features (Tai) domain (%dx%d) class_0 %d \r", VECTOR_DIM, size, size, clas_count[0]);
-        fflush(stdout);
-        printf(" Extracting [%d] features (Tai) domain (%dx%d) class_1 %d \r", VECTOR_DIM, size, size, clas_count[1]);
-        fflush(stdout);
-        printf(" Extracting [%d] features (Tai) domain (%dx%d) class_2 %d \r", VECTOR_DIM, size, size, clas_count[2]);
-        fflush(stdout);
-    }
-
-    for (i = 0; i < CLASS_NUM; i++)
-    {
-        printf("\n Building class_%d Kd-tree... ", i);
-        fflush(stdout);
-        kd_tree_v2[s][i] = kdtree_build(f_vectors_v2[s][i], clas_count[i], VECTOR_DIM);
-        printf("Done\n");
-        fflush(stdout);
-    }
-
-    free(domi[0]);
-}
-
-void TaiIndexing2(int size, int s)
-{
-    int i, j, k, h;
-    int count = 0;
-    int iso, clas, dct_clas;
-    double sum, sum2;
-    double **domi, **flip_domi;
-    register double pixel;
-    register int x, y;
-    struct c *node;
-    double dct_h_sum, dct_v_sum;
-    double dct_h_theta1 = 0.0, dct_h_theta2;
-    double dct_v_theta1, dct_v_theta2 = 0.0;
-    double dct_h_alpha1 = sqrt(1.0 / size), dct_h_alpha2 = sqrt(2.0 / size);
-    double dct_v_alpha1 = dct_h_alpha2, dct_v_alpha2 = dct_h_alpha1;
-    double dct_h_coef, dct_v_coef;
-
-    matrix_allocate(domi, size, size, double);
-    matrix_allocate(flip_domi, size, size, double);
-
-    for (i = 0; i < image_height - 2 * size + 1; i += SHIFT)
-    {
-        for (j = 0; j < image_width - 2 * size + 1; j += SHIFT)
-        {
-            count++;
-            k = 0;
-            sum = 0.0;
-            sum2 = 0.0;
-            dct_h_sum = 0.0;
-            dct_v_sum = 0.0;
-
-            for (x = 0; x < size; x++)
-            {
-                for (y = 0; y < size; y++)
-                {
-                    pixel = contract[x + (i >> 1)][y + (j >> 1)];
-                    sum += pixel;
-                    sum2 += pixel * pixel;
-                    domi[x][y] = pixel;
-
-                    dct_h_theta2 = ((2.0 * y + 1.0) * PI) / (2.0 * size);
-                    dct_v_theta1 = ((2.0 * x + 1.0) * PI) / (2.0 * size);
-
-                    dct_h_sum += (pixel - 128.0) * cos(dct_h_theta1) * cos(dct_h_theta2);
-                    dct_v_sum += (pixel - 128.0) * cos(dct_v_theta1) * cos(dct_v_theta2);
-                }
-            }
-
-            dct_h_coef = dct_h_sum * dct_h_alpha1 * dct_h_alpha2;
-            dct_v_coef = dct_v_sum * dct_v_alpha1 * dct_v_alpha2;
 
             newclass(size, domi, &iso, &clas);
-            dctclass(dct_h_coef, dct_v_coef, &dct_clas);
-            // flips(size, domi, flip_domi, iso);
 
-            node = (struct c *)malloc(sizeof(struct c));
-            node->ptr_x = i;
-            node->ptr_y = j;
-            node->sum = sum;
-            node->sum2 = sum2;
-            node->iso = iso;
-            node->next = class_tai[s][clas][dct_clas];
-            class_tai[s][clas][dct_clas] = node;
+            codebook_v2[s][clas][clas_count[s][clas]].sum = sum;
+            codebook_v2[s][clas][clas_count[s][clas]].sum2 = sum2;
+            codebook_v2[s][clas][clas_count[s][clas]].ptr_x = i;
+            codebook_v2[s][clas][clas_count[s][clas]].ptr_y = j;
+            codebook_v2[s][clas][clas_count[s][clas]].isom = iso;
+
+            clas_count[s][clas]++;
         }
-        printf(" Classification (Tai) domain (%dx%d)  %d \r", size, size, count);
-        fflush(stdout);
+        // printf(" Extracting [%d] features (Tai) domain (%dx%d) class_0 %d \r", VECTOR_DIM, size, size, clas_count[0]);
+        // fflush(stdout);
+        // printf(" Extracting [%d] features (Tai) domain (%dx%d) class_1 %d \r", VECTOR_DIM, size, size, clas_count[1]);
+        // fflush(stdout);
+        // printf(" Extracting [%d] features (Tai) domain (%dx%d) class_2 %d \r", VECTOR_DIM, size, size, clas_count[2]);
+        // fflush(stdout);
     }
 
-    /* Find a not empty class */
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
-            if (class_tai[s][i][j] != NULL)
-                goto out_loops;
-
-out_loops:
-
-    /* Make sure no class is empty */
-    for (k = 0; k < 3; k++)
-        for (h = 0; h < 3; h++)
-            if (class_tai[s][k][h] == NULL)
-                class_tai[s][k][h] = class_tai[s][i][j];
-
-    printf("\n");
+    // for (i = 0; i < CLASS_NUM; i++)
+    // {
+    //     printf("\n Building class_%d Kd-tree... ", i);
+    //     fflush(stdout);
+    //     kd_tree_v2[s][i] = kdtree_build(f_vectors_v2[s][i], clas_count[i], VECTOR_DIM);
+    //     printf("Done\n");
+    //     fflush(stdout);
+    // }
 
     free(domi[0]);
-    free(flip_domi[0]);
 }
 
 void ComputeFeatVectDimSaupe()
