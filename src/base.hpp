@@ -1,5 +1,5 @@
-#ifndef BASE_H
-#define BASE_H
+#ifndef BASE_HPP
+#define BASE_HPP
 
 /* standard library */
 

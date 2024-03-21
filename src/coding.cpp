@@ -1,4 +1,4 @@
-#include "base.h"
+#include "base.hpp"
 
 double Saupe_FisherCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qalf, int *qbet)
 {

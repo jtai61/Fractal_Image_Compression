@@ -1,4 +1,4 @@
-#include "base.h"
+#include "base.hpp"
 
 void ComputeMc(double **block, int size, double *x, double *y, int s)
 {
@@ -679,8 +679,7 @@ void TaiIndexing(int size, int s)
     int i, j, x, y;
     int cbook_size, clas, iso;
     double sum, sum2;
-    double **domi;
-    double pixel;
+    double **domi, pixel;
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
 

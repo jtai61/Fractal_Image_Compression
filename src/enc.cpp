@@ -1,5 +1,5 @@
 #define EXTERN
-#include "base.h"
+#include "base.hpp"
 
 int main(int argc, char **argv)
 {

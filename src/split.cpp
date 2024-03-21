@@ -1,4 +1,4 @@
-#include "base.h"
+#include "base.hpp"
 
 double entropy(int width, int height, int atx, int aty)
 {
