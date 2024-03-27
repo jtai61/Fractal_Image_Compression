@@ -1,4 +1,4 @@
-#include "base.hpp"
+#include "base.h"
 
 static heapT *h = NULL;
 static int hsize;

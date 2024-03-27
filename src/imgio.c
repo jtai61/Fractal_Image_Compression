@@ -1,4 +1,4 @@
-#include "base.hpp"
+#include "base.h"
 
 void writeimage_pgm(const char *nome, PIXEL **imag, int width, int height)
 {

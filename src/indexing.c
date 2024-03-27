@@ -1,4 +1,4 @@
-#include "base.hpp"
+#include "base.h"
 
 void ComputeMc(double **block, int size, double *x, double *y, int s)
 {

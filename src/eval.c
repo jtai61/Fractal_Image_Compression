@@ -1,10 +1,10 @@
 #define EXTERN
-#include "base.hpp"
+#include "base.h"
 
 int main(int argc, char **argv)
 {
-    printf("\nPSNR : %.2f dB\n\n", calc_PSNR(argv[1], argv[2]));
-    printf("\nSSIM : %.4f\n", calc_SSIM(argv[1], argv[2]));
+    printf("\n PSNR : %.2f dB", calc_PSNR(argv[1], argv[2]));
+    printf("\n SSIM : %.4f\n", calc_SSIM(argv[1], argv[2]));
 
 
     return 0;
@@ -22,11 +22,6 @@ double calc_PSNR(char *img1_path, char *img2_path)
     matrix_allocate(img1, image_width, image_height, PIXEL);
     matrix_allocate(img2, image_width, image_height, PIXEL);
 
-    printf("Reading %s (%dx%d) ...\n", img1_path, image_width, image_height);
-    fflush(stdout);
-    printf("Reading %s (%dx%d) ...\n", img2_path, image_width, image_height);
-    fflush(stdout);
-
     int i, j;
 
     i = fread(img1[0], sizeof(PIXEL), image_width * image_height, in1);
@@ -37,8 +32,6 @@ double calc_PSNR(char *img1_path, char *img2_path)
 
     fclose(in1);
     fclose(in2);
-
-    printf("\nStart calculate PSNR ...\n");
 
     int max_pixel_value = 255;
     double sum = 0.0, mse, psnr;
@@ -72,11 +65,6 @@ double calc_SSIM(char *img1_path, char *img2_path)
     matrix_allocate(img1, image_width, image_height, PIXEL);
     matrix_allocate(img2, image_width, image_height, PIXEL);
 
-    printf("Reading %s (%dx%d) ...\n", img1_path, image_width, image_height);
-    fflush(stdout);
-    printf("Reading %s (%dx%d) ...\n", img2_path, image_width, image_height);
-    fflush(stdout);
-
     int i, j;
 
     i = fread(img1[0], sizeof(PIXEL), image_width * image_height, in1);
@@ -87,8 +75,6 @@ double calc_SSIM(char *img1_path, char *img2_path)
 
     fclose(in1);
     fclose(in2);
-
-    printf("\nStart calculate SSIM ...\n");
 
     /* calculate mean */
     double img1_mean = 0.0, img2_mean = 0.0;

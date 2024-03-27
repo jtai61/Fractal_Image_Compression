@@ -1,18 +1,18 @@
-#ifndef BASE_HPP
-#define BASE_HPP
+#ifndef BASE_H
+#define BASE_H
 
 /* standard library */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <climits>
-#include <cmath>
-#include <cfloat>
-#include <ctime>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+#include <math.h>
+#include <float.h>
+#include <time.h>
 #include <unistd.h>
-#include <cctype>
-#include <cassert>
+#include <ctype.h>
+#include <assert.h>
 
 /* constant define */
 

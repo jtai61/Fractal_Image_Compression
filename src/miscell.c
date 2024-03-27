@@ -1,4 +1,4 @@
-#include "base.hpp"
+#include "base.h"
 
 void fatal(const char *s)
 {

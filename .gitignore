@@ -3,7 +3,3 @@
 
 # build folder
 build/
-
-# cbir folder
-cbir/data/
-cbir/model/
