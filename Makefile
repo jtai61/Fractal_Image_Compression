@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c17 -Wall -g
+CFLAGS = -Wall -g
 
 SRC_DIR = src
 BIN_DIR = build

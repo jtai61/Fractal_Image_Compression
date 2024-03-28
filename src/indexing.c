@@ -676,30 +676,33 @@ out_loops:
 
 void TaiIndexing(int size, int s)
 {
-    int i, j, x, y;
-    int cbook_size, clas, iso;
+    int i, j;
+    int count = 0;
+    int cbook_size;
+    int dim_vectors;
+    int clas, iso;
     double sum, sum2;
-    double **domi, pixel;
+    double **dom_tmp, **domi, **flip_domi;
+    double pixel;
+    int x, y;
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
 
-    for (i = 0; i < 3; i++)
-    {
-        codebook_v2[s][i] = (struct code_book *)malloc(cbook_size * sizeof(struct code_book));
-        clas_count[s][i] = 0;
-    }
+    dim_vectors = feat_vect_dim[(int)rint(log((double)(size)) / log(2.0))];
+    matrix_allocate(f_vectors[s], dim_vectors, cbook_size, float);
+    codebook[s] = (struct code_book *)malloc(cbook_size * sizeof(struct code_book));
 
     matrix_allocate(domi, size, size, double);
+    matrix_allocate(flip_domi, size, size, double);
+    matrix_allocate(dom_tmp, size, size, double);
 
     for (i = 0; i < image_height - 2 * size + 1; i += SHIFT)
     {
-        for (j = 0; j < image_width - 2 * size + 1; j += SHIFT)
+        for (j = 0; j < image_width - 2 * size + 1; j += SHIFT, count++)
         {
             sum = 0.0;
             sum2 = 0.0;
-
             for (x = 0; x < size; x++)
-            {
                 for (y = 0; y < size; y++)
                 {
                     pixel = contract[x + (i >> 1)][y + (j >> 1)];
@@ -707,36 +710,32 @@ void TaiIndexing(int size, int s)
                     sum2 += pixel * pixel;
                     domi[x][y] = pixel;
                 }
-            }
 
+            /* Compute the symmetry operation which brings the domain in the canonical orientation */
             newclass(size, domi, &iso, &clas);
 
-            codebook_v2[s][clas][clas_count[s][clas]].sum = sum;
-            codebook_v2[s][clas][clas_count[s][clas]].sum2 = sum2;
-            codebook_v2[s][clas][clas_count[s][clas]].ptr_x = i;
-            codebook_v2[s][clas][clas_count[s][clas]].ptr_y = j;
-            codebook_v2[s][clas][clas_count[s][clas]].isom = iso;
+            flips(size, domi, flip_domi, iso);
 
-            clas_count[s][clas]++;
+            ComputeSaupeVectors(flip_domi, size, s, f_vectors[s][count]);
+
+            codebook[s][count].sum = sum;
+            codebook[s][count].sum2 = sum2;
+            codebook[s][count].ptr_x = i;
+            codebook[s][count].ptr_y = j;
+            codebook[s][count].isom = iso;
         }
-        // printf(" Extracting [%d] features (Tai) domain (%dx%d) class_0 %d \r", VECTOR_DIM, size, size, clas_count[0]);
-        // fflush(stdout);
-        // printf(" Extracting [%d] features (Tai) domain (%dx%d) class_1 %d \r", VECTOR_DIM, size, size, clas_count[1]);
-        // fflush(stdout);
-        // printf(" Extracting [%d] features (Tai) domain (%dx%d) class_2 %d \r", VECTOR_DIM, size, size, clas_count[2]);
-        // fflush(stdout);
+        printf(" Extracting [%d] features (Saupe)  domain (%dx%d)  %d \r", dim_vectors, size, size, count);
+        fflush(stdout);
     }
-
-    // for (i = 0; i < CLASS_NUM; i++)
-    // {
-    //     printf("\n Building class_%d Kd-tree... ", i);
-    //     fflush(stdout);
-    //     kd_tree_v2[s][i] = kdtree_build(f_vectors_v2[s][i], clas_count[i], VECTOR_DIM);
-    //     printf("Done\n");
-    //     fflush(stdout);
-    // }
+    printf("\n Building Kd-tree... ");
+    fflush(stdout);
+    kd_tree[s] = kdtree_build(f_vectors[s], count - 1, dim_vectors);
+    printf("Done\n");
+    fflush(stdout);
 
     free(domi[0]);
+    free(dom_tmp[0]);
+    free(flip_domi[0]);
 }
 
 void ComputeFeatVectDimSaupe()

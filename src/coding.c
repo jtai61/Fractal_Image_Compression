@@ -1084,15 +1084,19 @@ double SaupeCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *q
 double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qalf, int *qbet)
 {
 	int x, y, qalfa, qbeta, i, j;
-	int tip, ii, counter, isometry, isom, clas;
+	int tip, ii, found, counter;
+	int isometry, isom, clas;
 	double dist, alfa, beta;
 	double min = 1000000000.0;
-	double sum, s0, det;
+	double sum, s0;
+	double det;
 	double t0 = 0.0;
 	double t1 = 0.0;
 	double t2 = 0.0;
 	double s1 = 0.0;
 	double s2 = 0.0;
+	static float r_vector[4096];
+	static int nlist[MAX_NEIGHBOURS];
 	double pixel;
 
 	tip = (int)rint(log((double)size) / log(2.0));
@@ -1108,9 +1112,7 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	}
 
 	s0 = size * size;
-
 	for (x = 0; x < size; x++)
-	{
 		for (y = 0; y < size; y++)
 		{
 			pixel = (double)image[atx + x][aty + y];
@@ -1118,22 +1120,25 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
-	}
 
 	newclass(size, range, &isom, &clas);
+	flips(size, range, flip_range, isom);
+	ComputeSaupeVectors(flip_range, size, tip, r_vector);
 
-	for (ii = 0; ii < clas_count[tip][clas]; ii++)
+	found = kdtree_search(r_vector, f_vectors[tip], feat_vect_dim[tip], kd_tree[tip], eps, matches, nlist);
+
+	for (ii = 0; ii < found; ii++)
 	{
 		comparisons++;
 		counter++;
-		isometry = mapping[isom][codebook_v2[tip][clas][ii].isom];
-		s1 = codebook_v2[tip][clas][ii].sum;
-		s2 = codebook_v2[tip][clas][ii].sum2;
+		isometry = mapping[isom][codebook[tip][nlist[ii]].isom];
+		s1 = codebook[tip][nlist[ii]].sum;
+		s2 = codebook[tip][nlist[ii]].sum2;
 		t1 = 0.0;
-		i = codebook_v2[tip][clas][ii].ptr_x >> 1;
-		j = codebook_v2[tip][clas][ii].ptr_y >> 1;
+		i = codebook[tip][nlist[ii]].ptr_x >> 1;
+		j = codebook[tip][nlist[ii]].ptr_y >> 1;
 
-		switch (isom)
+		switch (isometry)
 		{
 		case IDENTITY:
 			for (x = 0; x < size; x++)
@@ -1220,8 +1225,8 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 		if (dist < min)
 		{
 			min = dist;
-			*xd = codebook_v2[tip][clas][ii].ptr_x;
-			*yd = codebook_v2[tip][clas][ii].ptr_y;
+			*xd = codebook[tip][nlist[ii]].ptr_x;
+			*yd = codebook[tip][nlist[ii]].ptr_y;
 			*is = isometry;
 			*qalf = qalfa;
 			*qbet = qbeta;
