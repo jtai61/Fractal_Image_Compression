@@ -1,5 +1,154 @@
 #include "base.h"
 
+double BaselineCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qalf, int *qbet)
+{
+	int x, y, qalfa, qbeta, i, j;
+	int tip, ii, counter, isom;
+	double dist, alfa, beta;
+	double min = 1000000000.0;
+	double sum, s0, det;
+	double t0 = 0.0;
+	double t1 = 0.0;
+	double t2 = 0.0;
+	double s1 = 0.0;
+	double s2 = 0.0;
+	double pixel;
+
+	tip = (int)rint(log((double)size) / log(2.0));
+
+	if (tip == 0)
+	{ /* size = 1 */
+		*qbet = (int)image[atx][aty];
+		*qalf = zeroalfa;
+		*xd = 0;
+		*yd = 0;
+		*is = IDENTITY;
+		return 0.0;
+	}
+
+	s0 = size * size;
+
+	for (x = 0; x < size; x++)
+	{
+		for (y = 0; y < size; y++)
+		{
+			pixel = (double)image[atx + x][aty + y];
+			t0 += pixel;
+			t2 += pixel * pixel;
+			range[x][y] = pixel;
+		}
+	}
+
+	for (isom = IDENTITY; isom <= S_DIAGONAL; isom++)
+	{
+		for (ii = 0; ii < clas_count[tip][0]; ii++)
+		{
+			comparisons++;
+			counter++;
+			s1 = codebook[tip][ii].sum;
+			s2 = codebook[tip][ii].sum2;
+			t1 = 0.0;
+			i = codebook[tip][ii].ptr_x >> 1;
+			j = codebook[tip][ii].ptr_y >> 1;
+
+			switch (isom)
+			{
+			case IDENTITY:
+				for (x = 0; x < size; x++)
+					for (y = 0; y < size; y++)
+						t1 += contract[x + i][y + j] * range[x][y];
+				break;
+			case R_ROTATE90:
+				for (x = 0; x < size; x++)
+					for (y = 0; y < size; y++)
+						t1 += contract[x + i][y + j] * range[y][size - x - 1];
+				break;
+			case L_ROTATE90:
+				for (x = 0; x < size; x++)
+					for (y = 0; y < size; y++)
+						t1 += contract[x + i][y + j] * range[size - y - 1][x];
+				break;
+			case ROTATE180:
+				for (x = 0; x < size; x++)
+					for (y = 0; y < size; y++)
+						t1 += contract[x + i][y + j] * range[size - x - 1][size - y - 1];
+				break;
+			case R_VERTICAL:
+				for (x = 0; x < size; x++)
+					for (y = 0; y < size; y++)
+						t1 += contract[x + i][y + j] * range[x][size - y - 1];
+				break;
+			case R_HORIZONTAL:
+				for (x = 0; x < size; x++)
+					for (y = 0; y < size; y++)
+						t1 += contract[x + i][y + j] * range[size - x - 1][y];
+				break;
+			case F_DIAGONAL:
+				for (x = 0; x < size; x++)
+					for (y = 0; y < size; y++)
+						t1 += contract[x + i][y + j] * range[y][x];
+				break;
+			case S_DIAGONAL:
+				for (x = 0; x < size; x++)
+					for (y = 0; y < size; y++)
+						t1 += contract[x + i][y + j] * range[size - y - 1][size - x - 1];
+				break;
+			}
+
+			/* Compute the scalig factor */
+			det = s2 * s0 - s1 * s1;
+			if (det == 0.0)
+				alfa = 0.0;
+			else
+				alfa = (s0 * t1 - s1 * t0) / det;
+			if (alfa < 0.0)
+				alfa = 0.0;
+
+			/* Quantize the scalig factor */
+			qalfa = 0.5 + (alfa) / (MAX_ALFA) * (1 << N_BITALFA);
+			if (qalfa < 0)
+				qalfa = 0;
+			if (qalfa >= (1 << N_BITALFA))
+				qalfa = (1 << N_BITALFA) - 1;
+
+			/* Compute the scalig factor back from the quantized value */
+			alfa = (double)qalfa / (double)(1 << N_BITALFA) * (MAX_ALFA);
+
+			/* Compute the offset */
+			beta = (t0 - alfa * s1) / s0;
+			if (alfa > 0.0)
+				beta += alfa * 255;
+
+			/* Quantize the offset */
+			qbeta = 0.5 + beta / ((1.0 + fabs(alfa)) * 255) * ((1 << N_BITBETA) - 1);
+			if (qbeta < 0)
+				qbeta = 0;
+			if (qbeta >= 1 << N_BITBETA)
+				qbeta = (1 << N_BITBETA) - 1;
+
+			/* Compute the offset back from the quantized value */
+			beta = (double)qbeta / (double)((1 << N_BITBETA) - 1) * ((1.0 + fabs(alfa)) * 255);
+			if (alfa > 0.0)
+				beta -= alfa * 255;
+
+			/* Compute the rms distance */
+			sum = t2 - 2 * alfa * t1 - 2 * beta * t0 + alfa * alfa * s2 + 2 * alfa * beta * s1 + s0 * beta * beta;
+			dist = sqrt(sum / s0);
+
+			if (dist < min)
+			{
+				min = dist;
+				*xd = codebook[tip][ii].ptr_x;
+				*yd = codebook[tip][ii].ptr_y;
+				*is = isom;
+				*qalf = qalfa;
+				*qbet = qbeta;
+			}
+		}
+	}
+	return (min);
+}
+
 double Saupe_FisherCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qalf, int *qbet)
 {
 	int x, y, qalfa, qbeta, i, j;
@@ -1112,7 +1261,9 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	}
 
 	s0 = size * size;
+
 	for (x = 0; x < size; x++)
+	{
 		for (y = 0; y < size; y++)
 		{
 			pixel = (double)image[atx + x][aty + y];
@@ -1120,23 +1271,33 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 			t2 += pixel * pixel;
 			range[x][y] = pixel;
 		}
+	}
 
 	newclass(size, range, &isom, &clas);
 	flips(size, range, flip_range, isom);
 	ComputeSaupeVectors(flip_range, size, tip, r_vector);
 
-	found = kdtree_search(r_vector, f_vectors[tip], feat_vect_dim[tip], kd_tree[tip], eps, matches, nlist);
+	found = kdtree_search(r_vector, f_vectors_v2[tip][clas], feat_vect_dim[tip], kd_tree_v2[tip][clas], eps, matches, nlist);
+	// found = kdtree_search(r_vector, f_vectors[tip], feat_vect_dim[tip], kd_tree[tip], eps, matches, nlist);
 
 	for (ii = 0; ii < found; ii++)
 	{
 		comparisons++;
 		counter++;
-		isometry = mapping[isom][codebook[tip][nlist[ii]].isom];
-		s1 = codebook[tip][nlist[ii]].sum;
-		s2 = codebook[tip][nlist[ii]].sum2;
+
+		isometry = mapping[isom][codebook_v2[tip][clas][nlist[ii]].isom];
+		s1 = codebook_v2[tip][clas][nlist[ii]].sum;
+		s2 = codebook_v2[tip][clas][nlist[ii]].sum2;
+		// isometry = mapping[isom][codebook[tip][nlist[ii]].isom];
+		// s1 = codebook[tip][nlist[ii]].sum;
+		// s2 = codebook[tip][nlist[ii]].sum2;
+		
 		t1 = 0.0;
-		i = codebook[tip][nlist[ii]].ptr_x >> 1;
-		j = codebook[tip][nlist[ii]].ptr_y >> 1;
+		
+		i = codebook_v2[tip][clas][nlist[ii]].ptr_x >> 1;
+		j = codebook_v2[tip][clas][nlist[ii]].ptr_y >> 1;
+		// i = codebook[tip][nlist[ii]].ptr_x >> 1;
+		// j = codebook[tip][nlist[ii]].ptr_y >> 1;
 
 		switch (isometry)
 		{
@@ -1225,8 +1386,10 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 		if (dist < min)
 		{
 			min = dist;
-			*xd = codebook[tip][nlist[ii]].ptr_x;
-			*yd = codebook[tip][nlist[ii]].ptr_y;
+			*xd = codebook_v2[tip][clas][nlist[ii]].ptr_x;
+			*yd = codebook_v2[tip][clas][nlist[ii]].ptr_y;
+			// *xd = codebook[tip][nlist[ii]].ptr_x;
+			// *yd = codebook[tip][nlist[ii]].ptr_y;
 			*is = isometry;
 			*qalf = qalfa;
 			*qbet = qbeta;

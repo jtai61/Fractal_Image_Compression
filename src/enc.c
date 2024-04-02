@@ -37,6 +37,12 @@ int main(int argc, char **argv)
 
     switch (method)
     {
+    case Baseline:
+        Indexing = BaselineIndexing;
+        Coding = BaselineCoding;
+        printf(" Speed-up method: Baseline\n\n");
+        break;
+
     case MassCenter:
         ComputeAverageFactorMc();
         for (k = 0; k < 8; k++)

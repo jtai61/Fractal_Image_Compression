@@ -135,6 +135,7 @@ void readimage_raw(char *name)
 	printf("done\n");
 }
 
+/* pack value using size bits and output into foutf */
 int pack(int size, long value, FILE *foutf)
 {
 	int i;
@@ -168,6 +169,7 @@ int pack(int size, long value, FILE *foutf)
 	return (-1);
 }
 
+/* unpack value using size bits read from fin */
 long unpack(int size, FILE *fin)
 {
 	int i;

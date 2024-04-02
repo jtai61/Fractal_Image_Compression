@@ -15,7 +15,7 @@ void help_enc()
 		" -F   Fisher method          (Off)   -X   Hurtgen method              (Off)\n"
 		" -Z   Saupe-Fisher method    (Off)   -S   Saupe method                (Off)\n"
 		" -Y   Saupe-MC method        (Off)   -C   MassCenter method           (On) \n"
-		" -T   Tai method             (Off)											\n"
+		" -T   Tai method             (Off)	  -D   Baseline method			   (Off)\n"
 		" -e # Entropy threshold      (8.0)   -d # Domain step                 (4)  \n"
 		" -r # Rms threshold          (8.0)   -a # Adaptive factor             (1.0)\n"
 		" -v # Variance threshold     (Inf)   -W # Image width                 (512)\n"
@@ -70,6 +70,9 @@ void getopt_enc(int argc, char **argv)
 				break;
 			switch (argv[i][1])
 			{
+			case 'D':
+				method = Baseline;
+				break;
 			case 'F':
 				method = Fisher;
 				break;

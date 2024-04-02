@@ -16,13 +16,14 @@
 
 /* constant define */
 
-#define MassCenter 		0
-#define SaupeFisher 	1
-#define Saupe 			2
-#define Fisher 			3
-#define Hurtgen 		4
-#define McSaupe 		5
-#define Tai				6
+#define Baseline		0
+#define MassCenter 		1
+#define SaupeFisher 	2
+#define Saupe 			3
+#define Fisher 			4
+#define Hurtgen 		5
+#define McSaupe 		6
+#define Tai				7
 
 #define IDENTITY      	0
 #define L_ROTATE90    	1
@@ -38,6 +39,7 @@
 #define HEAPMAX 		10000
 #define TWOPI 			6.2831853
 #define PI 				3.1415926
+#define STD_THRES		10.0
 
 /* function define */
 
@@ -193,7 +195,9 @@ EXTERN float ****f_vect[8];
 EXTERN struct code_book *codebook[8];
 EXTERN struct code_book *codebook_v2[8][3];
 EXTERN float **f_vectors[8];
+EXTERN float **f_vectors_v2[8][3];
 EXTERN kdtree *kd_tree[8];
+EXTERN kdtree *kd_tree_v2[8][3];
 EXTERN int feat_vect_dim[8];
 EXTERN int average_factor[8];
 EXTERN int clas_count[8][3];
@@ -254,6 +258,7 @@ EXTERN int method INIT(= MassCenter);
 
 /* function prototype */
 
+double BaselineCoding(int, int, int, int *, int *, int *, int *, int *);
 double HurtgenCoding(int, int, int, int *, int *, int *, int *, int *);
 double SaupeCoding(int, int, int, int *, int *, int *, int *, int *);
 double FisherCoding(int, int, int, int *, int *, int *, int *, int *);
@@ -271,6 +276,7 @@ void ComputeAverageFactorMc();
 void ComputeFeatVectDimSaupe();
 void ComputeMcVectors(double **, double **, int, int, double *);
 void ComputeSaupeVectors(double **, int, int, float *);
+void BaselineIndexing(int, int);
 void FisherIndexing(int, int);
 void HurtgenIndexing(int, int);
 void MassCenterIndexing(int, int);
