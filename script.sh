@@ -29,7 +29,7 @@ function encode()
 {
 	if [ -f "./build/enc" ]; then
 		# encode raw to ifs
-		time ./build/enc $1
+		./build/enc $1
 	else
 		echo "enc file does not exist !"
 		exit 1
@@ -40,14 +40,7 @@ function decode()
 {
 	if [ -f "./build/dec" ]; then
 		# decode ifs to raw
-		time ./build/dec -i -r
-		# calculate PSNR and SSIM
-		if [ -f "./build/eval" ]; then
-			./build/eval img/uncompressed/Lena.raw img/decompressed/Lena_dec.raw
-		else
-			echo "eval file does not exist !"
-			exit 1
-		fi
+		./build/dec -i -r
 	else
 		echo "dec file does not exist !"
 		exit 1

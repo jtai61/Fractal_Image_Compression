@@ -3,6 +3,8 @@
 
 int main(int argc, char **argv)
 {
+    start_clock = clock();
+
     int i, h, k, max;
     char *p, *pp;
     int int_max_alfa;
@@ -40,7 +42,7 @@ int main(int argc, char **argv)
     case Baseline:
         Indexing = BaselineIndexing;
         Coding = BaselineCoding;
-        printf(" Speed-up method: Baseline\n\n");
+        printf("\n Speed-up method: Baseline\n\n");
         break;
 
     case MassCenter:
@@ -57,21 +59,21 @@ int main(int argc, char **argv)
 
         Indexing = MassCenterIndexing;
         Coding = MassCenterCoding;
-        printf(" Speed-up method: MassCenter\n\n");
+        printf("\n Speed-up method: MassCenter\n\n");
         break;
 
     case SaupeFisher:
         ComputeFeatVectDimSaupe();
         Indexing = Saupe_FisherIndexing;
         Coding = Saupe_FisherCoding;
-        printf(" Speed-up method: Saupe-Fisher\n\n");
+        printf("\n Speed-up method: Saupe-Fisher\n\n");
         break;
 
     case Saupe:
         ComputeFeatVectDimSaupe();
         Indexing = SaupeIndexing;
         Coding = SaupeCoding;
-        printf(" Speed-up method: Saupe\n\n");
+        printf("\n Speed-up method: Saupe\n\n");
         break;
 
     case Fisher:
@@ -82,7 +84,7 @@ int main(int argc, char **argv)
 
         Indexing = FisherIndexing;
         Coding = FisherCoding;
-        printf(" Speed-up method: Fisher\n\n");
+        printf("\n Speed-up method: Fisher\n\n");
         break;
 
     case Hurtgen:
@@ -92,7 +94,7 @@ int main(int argc, char **argv)
                     class_hurtgen[k][h][i] = NULL;
         Indexing = HurtgenIndexing;
         Coding = HurtgenCoding;
-        printf(" Speed-up method: Hurtgen\n\n");
+        printf("\n Speed-up method: Hurtgen\n\n");
         break;
 
     case McSaupe:
@@ -118,27 +120,21 @@ int main(int argc, char **argv)
                 }
         Indexing = Mc_SaupeIndexing;
         Coding = Mc_SaupeCoding;
-        printf(" Speed-up method: Mc-Saupe\n\n");
+        printf("\n Speed-up method: Mc-Saupe\n\n");
         break;
 
     case Tai:
         ComputeFeatVectDimSaupe();
         Indexing = TaiIndexing;
         Coding = TaiCoding;
-        printf(" Speed-up method: Tai\n\n");
+        printf("\n Speed-up method: Tai\n\n");
         break;
     }
 
     contraction(contract, image, 0, 0);
 
-    start_clock = clock();
-
     for (i = (int)rint(log((double)2) / log(2.0)); i <= (int)rint(log((double)max_size) / log(2.0)); i++)
         Indexing((int)rint(pow(2.0, (double)i)), i);
-
-    end_clock = clock();
-
-    printf("\n build time: %.4f sec\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
 
     bits_per_coordinate_w = ceil(log(image_width / SHIFT) / log(2.0));
     bits_per_coordinate_h = ceil(log(image_height / SHIFT) / log(2.0));
@@ -187,13 +183,7 @@ int main(int argc, char **argv)
     printf(" Variance threshold : %.2f\n", T_VAR);
     printf(" Rms threshold      : %.2f\n\n", T_RMS);
 
-    start_clock = clock();
-
     quadtree(0, 0, virtual_size, T_ENT, T_RMS, T_VAR);
-
-    end_clock = clock();
-
-    printf("\n\n search time: %.4f sec", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
 
     pack(-1, (long)0, fp);
     i = pack(-2, (long)0, fp);
@@ -213,6 +203,11 @@ int main(int argc, char **argv)
     free(flip_range[0]);
     free(range_tmp[0]);
     free(range[0]);
+
+    end_clock = clock();
+
+    printf("\n encode time : %f sec\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
+
 
     return (0);
 }

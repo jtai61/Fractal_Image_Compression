@@ -719,24 +719,20 @@ out_loops:
 void TaiIndexing(int size, int s)
 {
     int i, j, x, y;
-    // int count = 0;
-    int cbook_size;
-    int dim_vectors;
+    int cbook_size, dim_vectors;
     int clas, iso;
-    double sum, sum2;
+    double sum, sum2, pixel;
     double **domi, **flip_domi;
-    double pixel;
 
     cbook_size = (1 + image_width / SHIFT) * (1 + image_height / SHIFT);
     dim_vectors = feat_vect_dim[(int)rint(log((double)(size)) / log(2.0))];
+    
     for (i = 0; i < 3; i++)
     {
         matrix_allocate(f_vectors_v2[s][i], dim_vectors, cbook_size, float);
         codebook_v2[s][i] = (struct code_book *)malloc(cbook_size * sizeof(struct code_book));
         clas_count[s][i] = 0;
     }
-    // matrix_allocate(f_vectors[s], dim_vectors, cbook_size, float);
-    // codebook[s] = (struct code_book *)malloc(cbook_size * sizeof(struct code_book));
 
     matrix_allocate(domi, size, size, double);
     matrix_allocate(flip_domi, size, size, double);
@@ -762,7 +758,6 @@ void TaiIndexing(int size, int s)
             newclass(size, domi, &iso, &clas);
             flips(size, domi, flip_domi, iso);
             ComputeSaupeVectors(flip_domi, size, s, f_vectors_v2[s][clas][clas_count[s][clas]]);
-            // ComputeSaupeVectors(flip_domi, size, s, f_vectors[s][count]);
 
             codebook_v2[s][clas][clas_count[s][clas]].sum = sum;
             codebook_v2[s][clas][clas_count[s][clas]].sum2 = sum2;
@@ -770,17 +765,9 @@ void TaiIndexing(int size, int s)
             codebook_v2[s][clas][clas_count[s][clas]].ptr_y = j;
             codebook_v2[s][clas][clas_count[s][clas]].isom = iso;
 
-            // codebook[s][count].sum = sum;
-            // codebook[s][count].sum2 = sum2;
-            // codebook[s][count].ptr_x = i;
-            // codebook[s][count].ptr_y = j;
-            // codebook[s][count].isom = iso;
-
             clas_count[s][clas]++;
-            // count++;
         }
         printf(" Extracting [%d] features (Saupe) domain (%dx%d)\r", dim_vectors, size, size);
-        // printf(" Extracting [%d] features (Saupe)  domain (%dx%d)  %d \r", dim_vectors, size, size, count);
         fflush(stdout);
     }
     printf("\n Building Kd-tree... ");
@@ -789,7 +776,6 @@ void TaiIndexing(int size, int s)
     {
         kd_tree_v2[s][i] = kdtree_build(f_vectors_v2[s][i], clas_count[s][i], dim_vectors);
     }
-    // kd_tree[s] = kdtree_build(f_vectors[s], count, dim_vectors);
     printf("Done\n");
     fflush(stdout);
 

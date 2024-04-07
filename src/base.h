@@ -6,9 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 #include <math.h>
-#include <float.h>
 #include <time.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -38,8 +36,6 @@
 #define BUCKETSIZE 		10
 #define HEAPMAX 		10000
 #define TWOPI 			6.2831853
-#define PI 				3.1415926
-#define STD_THRES		10.0
 
 /* function define */
 
@@ -93,7 +89,6 @@ struct code_book
 	short isom;
 	double sum;
 	double sum2;
-	double var;
 };
 
 struct c
@@ -298,8 +293,6 @@ void help_enc();
 kdtree *kdtree_build(float **, int, int);
 void kdtree_free(kdtree *);
 int kdtree_search(float *, float **, int, kdtree *, float, int, int *);
-int compare_2(const void *, const void *);
-void binary_knn_search(struct code_book *, int, double, int, int *);
 long unpack(int, FILE *);
 void read_transformations(int, int, int);
 void writeimage_pgm(const char *, PIXEL **, int, int);
@@ -312,8 +305,5 @@ void iterative_decoding(int, int, double);
 void piramidal_decoding(int);
 double calc_PSNR(char *, char *);
 double calc_SSIM(char *, char *);
-double mean(int, double **, int, int);
-int HammingDistance(unsigned, unsigned);
-void countingSort(int *, int);
 
 #endif

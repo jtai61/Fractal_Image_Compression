@@ -1278,26 +1278,17 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 	ComputeSaupeVectors(flip_range, size, tip, r_vector);
 
 	found = kdtree_search(r_vector, f_vectors_v2[tip][clas], feat_vect_dim[tip], kd_tree_v2[tip][clas], eps, matches, nlist);
-	// found = kdtree_search(r_vector, f_vectors[tip], feat_vect_dim[tip], kd_tree[tip], eps, matches, nlist);
 
 	for (ii = 0; ii < found; ii++)
 	{
 		comparisons++;
 		counter++;
-
 		isometry = mapping[isom][codebook_v2[tip][clas][nlist[ii]].isom];
 		s1 = codebook_v2[tip][clas][nlist[ii]].sum;
 		s2 = codebook_v2[tip][clas][nlist[ii]].sum2;
-		// isometry = mapping[isom][codebook[tip][nlist[ii]].isom];
-		// s1 = codebook[tip][nlist[ii]].sum;
-		// s2 = codebook[tip][nlist[ii]].sum2;
-		
 		t1 = 0.0;
-		
 		i = codebook_v2[tip][clas][nlist[ii]].ptr_x >> 1;
 		j = codebook_v2[tip][clas][nlist[ii]].ptr_y >> 1;
-		// i = codebook[tip][nlist[ii]].ptr_x >> 1;
-		// j = codebook[tip][nlist[ii]].ptr_y >> 1;
 
 		switch (isometry)
 		{
@@ -1388,8 +1379,6 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 			min = dist;
 			*xd = codebook_v2[tip][clas][nlist[ii]].ptr_x;
 			*yd = codebook_v2[tip][clas][nlist[ii]].ptr_y;
-			// *xd = codebook[tip][nlist[ii]].ptr_x;
-			// *yd = codebook[tip][nlist[ii]].ptr_y;
 			*is = isometry;
 			*qalf = qalfa;
 			*qbet = qbeta;
