@@ -445,7 +445,7 @@ double FisherCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *
 				if (qalfa >= (1 << N_BITALFA))
 					qalfa = (1 << N_BITALFA) - 1;
 
-				/* Compute the scalig factor back from the quantized value*/
+				/* Compute the scalig factor back from the quantized value */
 				alfa = (double)qalfa / (double)(1 << N_BITALFA) * (MAX_ALFA);
 
 				/* Compute the offset */

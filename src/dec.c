@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 	printf("\n PSNR : %.2f", calc_PSNR("img/uncompressed/Lena.raw", "img/decompressed/Lena_dec.raw"));
 	printf("\n SSIM : %.4f\n", calc_SSIM("img/uncompressed/Lena.raw", "img/decompressed/Lena_dec.raw"));
 
-	printf("\n decode time : %f sec\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
+	printf("\n decode time : %.4f sec\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
 
 	return 0;
 }
@@ -229,7 +229,7 @@ void iterative_decoding(int level, int n_iter, double zoo)
 	if (first_time++ == 0)
 		for (i = 0; i < height; i++)
 			for (j = 0; j < width; j++)
-				image[i][j] = 128;
+				image[i][j] = 0;
 
 	for (s = 0; s < n_iter; s++)
 	{

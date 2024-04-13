@@ -206,7 +206,7 @@ int main(int argc, char **argv)
 
     end_clock = clock();
 
-    printf("\n encode time : %f sec\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
+    printf("\n encode time : %.4f sec\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
 
 
     return (0);

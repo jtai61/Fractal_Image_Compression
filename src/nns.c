@@ -172,6 +172,7 @@ static kdtree *kdtree_build2(int *idx, int num, int dim)
 	tmp->max = (float *)malloc(sizeof(float) * dim);
 
 	spread = -1.0;
+	
 	for (d = 0; d < dim; d++)
 	{
 		min = max = p[idx[0]][d];
@@ -191,10 +192,25 @@ static kdtree *kdtree_build2(int *idx, int num, int dim)
 		tmp->max[d] = max;
 	}
 
-	/* 2a. If the number of points is less then BUCKETSIZE:
-		  pack all points in the bucket, and we're done */
+	/* 2a. If the number of points is more then BUCKETSIZE, we have to build a tree recursively */
 
-	if (num <= BUCKETSIZE)
+	if (num > BUCKETSIZE)
+	{
+		/* 3. Sort vertices according to coordinate 'cutdim' */
+
+		qsort(idx, num, sizeof(int), compare);
+
+		/* 4. Split vertices evenly and recursively */
+
+		tmp->cutdim = cutdim;
+		tmp->cutval = (p[idx[num / 2 - 1]][cutdim] + p[idx[num / 2]][cutdim]) / 2.0;
+		tmp->idx = NULL;
+		tmp->num = 0;
+
+		tmp->left = kdtree_build2(idx, num / 2, dim);
+		tmp->right = kdtree_build2(idx + num / 2, num - num / 2, dim);
+	}
+	else /* 2b. Otherwise, pack all points in the bucket, and we're done */
 	{
 		tmp->cutdim = -1;
 		tmp->left = tmp->right = NULL;
@@ -202,24 +218,7 @@ static kdtree *kdtree_build2(int *idx, int num, int dim)
 		tmp->num = num;
 		for (i = 0; i < num; i++)
 			tmp->idx[i] = idx[i];
-		return tmp;
 	}
-
-	/* 2b. Otherwise, we have to build a tree recursively */
-
-	/* 3. Sort vertices according to coordinate 'cutdim' */
-
-	qsort(idx, num, sizeof(int), compare);
-
-	/* 4. Split vertices evenly and recursively */
-
-	tmp->cutdim = cutdim;
-	tmp->cutval = (p[idx[num / 2 - 1]][cutdim] + p[idx[num / 2]][cutdim]) / 2.0;
-	tmp->idx = NULL;
-	tmp->num = 0;
-
-	tmp->left = kdtree_build2(idx, num / 2, dim);
-	tmp->right = kdtree_build2(idx + num / 2, num - num / 2, dim);
 
 	return tmp;
 }
