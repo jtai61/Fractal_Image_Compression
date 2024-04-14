@@ -144,6 +144,47 @@ void newclass(int size, double **block, int *isom, int *clas)
     *clas = ordering[index][5];
 }
 
+void newclass_v2(int size, double **block, int *isom, int *clas)
+{
+    int i, j;
+    int index, half_size;
+    double a[4] = {0.0, 0.0, 0.0, 0.0};
+    int order[4];
+
+    half_size = size >> 1;
+
+    for (i = 0; i < half_size; i++)
+    {
+        for (j = 0; j < half_size; j++)
+        {
+            a[0] += block[i][j];
+            a[1] += block[i][j + half_size];
+            a[2] += block[i + half_size][j];
+            a[3] += block[i + half_size][j + half_size];
+        }
+    }
+
+    for (i = 0; i < 4; ++i)
+        order[i] = i;
+
+    for (i = 2; i >= 0; --i)
+    {
+        for (j = 0; j <= i; ++j)
+        {
+            if (a[j] < a[j + 1])
+            {
+                swap(order[j], order[j + 1], int);
+                swap(a[j], a[j + 1], double);
+            }
+        }
+    }
+
+    index = match(order);
+
+    *isom = ordering[index][4];
+    *clas = ordering[index][5];
+}
+
 void contraction(double **t, PIXEL **fun, int s_x, int s_y)
 {
     double tmp;
@@ -755,7 +796,7 @@ void TaiIndexing(int size, int s)
                 }
             }
 
-            newclass(size, domi, &iso, &clas);
+            newclass_v2(size, domi, &iso, &clas);
             flips(size, domi, flip_domi, iso);
             ComputeSaupeVectors(flip_domi, size, s, f_vectors_v2[s][clas][clas_count[s][clas]]);
 
@@ -774,7 +815,7 @@ void TaiIndexing(int size, int s)
     fflush(stdout);
     for (i = 0; i < 3; i++)
     {
-        kd_tree_v2[s][i] = kdtree_build(f_vectors_v2[s][i], clas_count[s][i], dim_vectors);
+        kd_tree_v2[s][i] = kdtree_build_v2(f_vectors_v2[s][i], clas_count[s][i], dim_vectors);
     }
     printf("Done\n");
     fflush(stdout);

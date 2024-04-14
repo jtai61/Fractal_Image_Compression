@@ -1273,11 +1273,11 @@ double TaiCoding(int atx, int aty, int size, int *xd, int *yd, int *is, int *qal
 		}
 	}
 
-	newclass(size, range, &isom, &clas);
+	newclass_v2(size, range, &isom, &clas);
 	flips(size, range, flip_range, isom);
 	ComputeSaupeVectors(flip_range, size, tip, r_vector);
 
-	found = kdtree_search(r_vector, f_vectors_v2[tip][clas], feat_vect_dim[tip], kd_tree_v2[tip][clas], eps, matches, nlist);
+	found = kdtree_search_v2(r_vector, f_vectors_v2[tip][clas], feat_vect_dim[tip], kd_tree_v2[tip][clas], eps, matches, nlist);
 
 	for (ii = 0; ii < found; ii++)
 	{
