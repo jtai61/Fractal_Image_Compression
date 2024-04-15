@@ -28,8 +28,8 @@ void help_enc()
 		" -y # Max value of alfa      (1.0)   -Q   Output a quadtree image     (Off)\n"
 		" -z # Force alfa to be 0     (0)     -h   Display this help \n\n"
 		" Supported image format: raw and pgm\n"
-		" Default input file : img/uncompressed/Lena.raw\n"
-		" Default output file: ifs/Lena_enc.ifs\n\n");
+		" Default input file : img/uncompressed/Lena_256.raw\n"
+		" Default output file: ifs/Lena_256_enc.ifs\n\n");
 }
 
 void help_dec()
@@ -45,8 +45,8 @@ void help_dec()
 		   " -d   Display image with xv       (Off)\n"
 		   " -z # Zoom factor                 (1.0)\n"
 		   " -h   Display this help \n\n"
-		   " Default input file : ifs/Lena_enc.ifs\n"
-		   " Default output file: img/decompressed/Lena_dec.pgm\n\n");
+		   " Default input file : ifs/Lena_256_enc.ifs\n"
+		   " Default output file: img/decompressed/Lena_256_dec.pgm\n\n");
 }
 
 void getopt_enc(int argc, char **argv)
@@ -233,9 +233,9 @@ void getopt_enc(int argc, char **argv)
 		}
 
 	if (filein[0] == 1)
-		strcpy(filein, "/home/joe/Fractal_Image_Compression/img/uncompressed/Lena.raw");
+		strcpy(filein, "/home/joe/Fractal_Image_Compression/img/uncompressed/Lena_256.raw");
 	if (fileout[0] == 1)
-		strcpy(fileout, "/home/joe/Fractal_Image_Compression/ifs/Lena_enc.ifs");
+		strcpy(fileout, "/home/joe/Fractal_Image_Compression/ifs/Lena_256_enc.ifs");
 
 	if (min_size > max_size)
 		fatal("\n -m flag value greater tham -M flag value");
@@ -291,13 +291,13 @@ void getopt_dec(int argc, char **argv)
 		}
 
 	if (filein[0] == 1)
-		strcpy(filein, "/home/joe/Fractal_Image_Compression/ifs/Lena_enc.ifs");
+		strcpy(filein, "/home/joe/Fractal_Image_Compression/ifs/Lena_256_enc.ifs");
 
 	if (fileout[0] == 1)
 	{
 		if (raw_format)
-			strcpy(fileout, "/home/joe/Fractal_Image_Compression/img/decompressed/Lena_dec.raw");
+			strcpy(fileout, "/home/joe/Fractal_Image_Compression/img/decompressed/Lena_256_dec.raw");
 		else
-			strcpy(fileout, "/home/joe/Fractal_Image_Compression/img/decompressed/Lena_dec.pgm");
+			strcpy(fileout, "/home/joe/Fractal_Image_Compression/img/decompressed/Lena_256_dec.pgm");
 	}
 }

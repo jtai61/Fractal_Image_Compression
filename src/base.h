@@ -209,9 +209,9 @@ EXTERN int N_BITBETA INIT(= 7);
 EXTERN double MAX_ALFA INIT(= 1.0);
 EXTERN int min_size INIT(= 4);
 EXTERN int max_size INIT(= 16);
-EXTERN int image_width INIT(= 512);
-EXTERN int image_height INIT(= 512);
-EXTERN int virtual_size INIT(= 512);
+EXTERN int image_width INIT(= 256);
+EXTERN int image_height INIT(= 256);
+EXTERN int virtual_size INIT(= 256);
 EXTERN int SHIFT INIT(= 4);
 
 EXTERN double T_ENT INIT(= 8.0);
