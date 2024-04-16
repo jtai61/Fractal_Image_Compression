@@ -57,13 +57,16 @@ void getopt_enc(int argc, char **argv)
 	fileout[0] = 1;
 
 	for (i = 1; i < argc; ++i)
+	{
 		if (argv[i][0] != '-')
+		{
 			if (filein[0] == 1)
 				strcpy(filein, argv[i]);
 			else if (fileout[0] == 1)
 				strcpy(fileout, argv[i]);
 			else
 				;
+		}
 		else
 		{
 			if (strlen(argv[i]) == 1)
@@ -231,11 +234,13 @@ void getopt_enc(int argc, char **argv)
 				exit(-1);
 			}
 		}
+	}
 
 	if (filein[0] == 1)
-		strcpy(filein, "/home/joe/Fractal_Image_Compression/img/uncompressed/Lena_256.raw");
+		strcpy(filein, "/home/joe/Fractal_Image_Compression/img/uncompressed/Lena_512.raw");
+
 	if (fileout[0] == 1)
-		strcpy(fileout, "/home/joe/Fractal_Image_Compression/ifs/Lena_256_enc.ifs");
+		strcpy(fileout, "/home/joe/Fractal_Image_Compression/ifs/Lena_512_enc.ifs");
 
 	if (min_size > max_size)
 		fatal("\n -m flag value greater tham -M flag value");
@@ -249,13 +254,16 @@ void getopt_dec(int argc, char **argv)
 	fileout[0] = 1;
 
 	for (i = 1; i < argc; ++i)
+	{
 		if (argv[i][0] != '-')
+		{
 			if (filein[0] == 1)
 				strcpy(filein, argv[i]);
 			else if (fileout[0] == 1)
 				strcpy(fileout, argv[i]);
 			else
 				;
+		}
 		else
 		{
 			if (strlen(argv[i]) == 1)
@@ -289,15 +297,16 @@ void getopt_dec(int argc, char **argv)
 				exit(-1);
 			}
 		}
+	}
 
 	if (filein[0] == 1)
-		strcpy(filein, "/home/joe/Fractal_Image_Compression/ifs/Lena_256_enc.ifs");
+		strcpy(filein, "/home/joe/Fractal_Image_Compression/ifs/Lena_512_enc.ifs");
 
 	if (fileout[0] == 1)
 	{
 		if (raw_format)
-			strcpy(fileout, "/home/joe/Fractal_Image_Compression/img/decompressed/Lena_256_dec.raw");
+			strcpy(fileout, "/home/joe/Fractal_Image_Compression/img/decompressed/Lena_512_dec.raw");
 		else
-			strcpy(fileout, "/home/joe/Fractal_Image_Compression/img/decompressed/Lena_256_dec.pgm");
+			strcpy(fileout, "/home/joe/Fractal_Image_Compression/img/decompressed/Lena_512_dec.pgm");
 	}
 }

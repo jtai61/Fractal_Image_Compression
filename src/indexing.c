@@ -778,9 +778,9 @@ void TaiIndexing(int size, int s)
     matrix_allocate(domi, size, size, double);
     matrix_allocate(flip_domi, size, size, double);
 
-    for (i = 0; i < image_height - 2 * size + 1; i += SHIFT)
+    for (i = 0; i < image_height - (size << 1) + 1; i += SHIFT)
     {
-        for (j = 0; j < image_width - 2 * size + 1; j += SHIFT)
+        for (j = 0; j < image_width - (size << 1) + 1; j += SHIFT)
         {
             sum = 0.0;
             sum2 = 0.0;

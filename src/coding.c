@@ -1512,6 +1512,107 @@ void quadtree(int atx, int aty, int size, double tol_entr, double tol_rms, doubl
 	}
 }
 
+void quadtree_v2(int atx, int aty, int size, double tol_entr, double tol_rms, double tol_var)
+{
+	double best_rms;
+	int domx, domy, isom, qalfa, qbeta;
+	static int coded = 0;
+	static int oldper = 0;
+	static int newper = 0;
+	double compress, bpp;
+	int bytes, k;
+	int half_size = size >> 1;
+
+	if (atx >= image_height || aty >= image_width)
+		return;
+
+	if (size > max_size || atx + size > image_height || aty + size > image_width)
+	{
+		for (k = aty; k < aty + size; k++)
+			qtt[atx + half_size][k] = 0;
+
+		for (k = atx; k < atx + size; k++)
+			qtt[k][aty + half_size] = 0;
+
+		quadtree(atx, aty, half_size, tol_entr, tol_rms, tol_var);
+		quadtree(atx + half_size, aty, half_size, tol_entr, tol_rms, tol_var);
+		quadtree(atx, aty + half_size, half_size, tol_entr, tol_rms, tol_var);
+		quadtree(atx + half_size, aty + half_size, half_size, tol_entr, tol_rms, tol_var);
+		return;
+	}
+
+	if ((entropy(size, size, atx, aty) > tol_entr || variance(size, size, atx, aty) > tol_var) && size > min_size)
+	{
+		tol_entr = tol_entr + (log((double)adapt) / log(2.0)) / (log((double)max_size) / log(2.0) - log((double)size) / log(2.0) + 1);
+
+		pack(1, (long)1, fp);
+		for (k = aty; k < aty + size; k++)
+			qtt[atx + half_size][k] = 0;
+
+		for (k = atx; k < atx + size; k++)
+			qtt[k][aty + half_size] = 0;
+
+		quadtree(atx, aty, half_size, tol_entr, tol_rms * adapt, tol_var * adapt);
+		quadtree(atx + half_size, aty, half_size, tol_entr, tol_rms * adapt, tol_var * adapt);
+		quadtree(atx, aty + half_size, half_size, tol_entr, tol_rms * adapt, tol_var * adapt);
+		quadtree(atx + half_size, aty + half_size, half_size, tol_entr, tol_rms * adapt, tol_var * adapt);
+	}
+	else
+	{
+		best_rms = Coding(atx, aty, size, &domx, &domy, &isom, &qalfa, &qbeta);
+		if (best_rms > tol_rms && size > min_size)
+		{
+			tol_entr = tol_entr + (log(adapt) / log(2.0)) / (log((double)max_size) / log(2.0) - log((double)size) / log(2.0) + 1);
+
+			pack(1, (long)1, fp);
+			for (k = aty; k < aty + size; k++)
+				qtt[atx + half_size][k] = 0;
+
+			for (k = atx; k < atx + size; k++)
+				qtt[k][aty + half_size] = 0;
+
+			quadtree(atx, aty, half_size, tol_entr, tol_rms * adapt, tol_var * adapt);
+			quadtree(atx + half_size, aty, half_size, tol_entr, tol_rms * adapt, tol_var * adapt);
+			quadtree(atx, aty + half_size, half_size, tol_entr, tol_rms * adapt, tol_var * adapt);
+			quadtree(atx + half_size, aty + half_size, half_size, tol_entr, tol_rms * adapt, tol_var * adapt);
+		}
+		else
+		{
+			if (size > min_size)
+				pack(1, (long)0, fp);
+
+			if (abs(qalfa - zeroalfa) <= zero_threshold)
+			{
+				qbeta = best_beta(atx, aty, size, 0.0);
+				qalfa = zeroalfa;
+			}
+			pack(N_BITALFA, (long)qalfa, fp);
+			pack(N_BITBETA, (long)qbeta, fp);
+			zero_alfa_transform++;
+			if (qalfa != zeroalfa)
+			{
+				zero_alfa_transform--;
+				pack(3, (long)isom, fp);
+				pack(bits_per_coordinate_h, (long)(domx / SHIFT), fp);
+				pack(bits_per_coordinate_w, (long)(domy / SHIFT), fp);
+			}
+
+			transforms++;
+			coded += size * size;
+			newper = (int)(((double)coded / (image_width * image_height)) * 100);
+			if (newper > oldper)
+			{
+				bytes = pack(-2, (long)0, fp);
+				compress = (double)coded / (double)bytes;
+				bpp = 8.0 / compress;
+				printf(" %d %% Coded, %.2f CR, %.2f bpp\r", newper, compress, bpp);
+				oldper = newper;
+				fflush(stdout);
+			}
+		}
+	}
+}
+
 void flips(int size, double **block, double **flip_block, int iso)
 {
 	int i, j;

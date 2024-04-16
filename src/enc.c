@@ -183,7 +183,14 @@ int main(int argc, char **argv)
     printf(" Variance threshold : %.2f\n", T_VAR);
     printf(" Rms threshold      : %.2f\n\n", T_RMS);
 
-    quadtree(0, 0, virtual_size, T_ENT, T_RMS, T_VAR);
+    if (method == Tai)
+    {
+        quadtree_v2(0, 0, virtual_size, T_ENT, T_RMS, T_VAR);
+    }
+    else
+    {
+        quadtree(0, 0, virtual_size, T_ENT, T_RMS, T_VAR);
+    }
 
     pack(-1, (long)0, fp);
     i = pack(-2, (long)0, fp);
@@ -206,7 +213,7 @@ int main(int argc, char **argv)
 
     end_clock = clock();
 
-    printf("\n encode time : %.4f sec\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
+    printf("\n encode time : %.4f sec\n\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
 
 
     return (0);
