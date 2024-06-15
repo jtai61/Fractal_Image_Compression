@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 	printf("\n PSNR : %.2f", calc_PSNR("img/uncompressed/Lena_512.raw", "img/decompressed/Lena_512_dec.raw"));
 	printf("\n SSIM : %.4f\n", calc_SSIM("img/uncompressed/Lena_512.raw", "img/decompressed/Lena_512_dec.raw"));
 
-	printf("\n decode time : %.4f sec\n\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
+	printf("\n Decoding time : %.2f sec\n\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
 
 	return 0;
 }
